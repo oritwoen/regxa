@@ -130,12 +130,21 @@ class CargoRegistry implements Registry {
         name: crateData.name,
         description: crateData.description || '',
         homepage: crateData.homepage || '',
+        documentation: crateData.documentation || '',
         repository: normalizeRepositoryURL(crateData.repository || ''),
         licenses: normalizeLicense(data.versions[0]?.license || ''),
         keywords: crateData.keywords,
         namespace: '',
         latestVersion,
-        metadata: {},
+        metadata: {
+          downloads: crateData.downloads,
+          recentDownloads: crateData.recent_downloads,
+          categories: crateData.categories,
+          newestVersion: crateData.newest_version,
+          defaultVersion: crateData.max_version,
+          updatedAt: crateData.updated_at,
+          createdAt: crateData.created_at,
+        },
       }
     }
     catch (error) {
@@ -163,7 +172,11 @@ class CargoRegistry implements Registry {
           licenses: normalizeLicense(versionData.license),
           integrity: `sha256-${versionData.checksum}`,
           status,
-          metadata: {},
+          metadata: {
+            crateSize: versionData.crate_size,
+            features: versionData.features,
+            downloads: versionData.downloads,
+          },
         })
       }
 

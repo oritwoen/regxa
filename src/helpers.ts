@@ -1,4 +1,4 @@
-import type { Package, Version, Dependency, Maintainer } from './core/types.ts'
+import type { Package, Version, Dependency, Maintainer, URLBuilder } from './core/types.ts'
 import type { Client } from './core/client.ts'
 import { createFromPURL } from './core/purl.ts'
 
@@ -55,4 +55,45 @@ export async function bulkFetchPackages(
 
   await Promise.all(workers)
   return results
+}
+
+/**
+ * Select the best matching version from a list.
+ *
+ * Resolution order:
+ * 1. Exact match for `requested` (non-yanked/deprecated/retracted)
+ * 2. Exact match for `latest` (non-yanked/deprecated/retracted)
+ * 3. First available version with no negative status
+ *
+ * Returns `null` when no usable version exists.
+ */
+export function selectVersion(versions: Version[], options?: {
+  requested?: string
+  latest?: string
+}): Version | null {
+  const { requested, latest } = options ?? {}
+
+  if (requested) {
+    const exact = versions.find(v => v.number === requested && v.status === '')
+    if (exact) return exact
+  }
+
+  if (latest) {
+    const latestV = versions.find(v => v.number === latest && v.status === '')
+    if (latestV) return latestV
+  }
+
+  return versions.find(v => v.status === '') ?? null
+}
+
+/**
+ * Resolve the best documentation URL for a package.
+ *
+ * Fallback chain:
+ * 1. `package.documentation` (explicit docs URL from registry)
+ * 2. `package.homepage` (project homepage)
+ * 3. `urls.documentation()` (ecosystem default, e.g. docs.rs, rubydoc.info)
+ */
+export function resolveDocsUrl(pkg: Package, urls: URLBuilder, version?: string): string {
+  return pkg.documentation || pkg.homepage || urls.documentation(pkg.name, version)
 }

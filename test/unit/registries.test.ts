@@ -179,6 +179,12 @@ describe('Registry Modules', () => {
       expect(pkg.latestVersion).toBe('1.0.197')
       expect(pkg.keywords).toContain('serialization')
       expect(pkg.namespace).toBe('')
+      expect(pkg.documentation).toBe('https://docs.rs/serde')
+      expect(pkg.metadata.downloads).toBe(500000000)
+      expect(pkg.metadata.recentDownloads).toBe(5000000)
+      expect(pkg.metadata.newestVersion).toBe('1.0.197')
+      expect(pkg.metadata.updatedAt).toBe('2024-01-15T10:00:00Z')
+      expect(pkg.metadata.createdAt).toBe('2014-12-20T02:35:07Z')
     })
 
     it('should throw NotFoundError for missing cargo crate', async () => {
@@ -276,6 +282,9 @@ describe('Registry Modules', () => {
       expect(versions[0].integrity).toContain('sha256')
       expect(versions[1].number).toBe('1.0.197')
       expect(versions[1].status).toBe('')
+      expect(versions[0].metadata.crateSize).toBe(100000)
+      expect(versions[0].metadata.downloads).toBe(40000000)
+      expect(versions[1].metadata.crateSize).toBe(100000)
     })
   })
 
@@ -342,6 +351,7 @@ describe('Registry Modules', () => {
       expect(pkg.repository).toContain('github.com/psf/requests')
       expect(pkg.latestVersion).toBe('2.31.0')
       expect(pkg.namespace).toBe('')
+      expect(pkg.documentation).toBe('https://requests.readthedocs.io')
     })
 
     it('should throw NotFoundError for missing pypi package', async () => {

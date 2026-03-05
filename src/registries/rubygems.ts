@@ -83,6 +83,7 @@ class RubyGemsRegistry implements Registry {
         name: data.name,
         description: data.description || '',
         homepage: data.homepage_uri || '',
+        documentation: (data.metadata?.documentation_uri as string) || '',
         repository,
         licenses,
         keywords: [],

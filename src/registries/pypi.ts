@@ -86,6 +86,7 @@ class PyPIRegistry implements Registry {
         name: info.name,
         description: info.summary || info.description || '',
         homepage: info.project_urls?.['Homepage'] || '',
+        documentation: info.project_urls?.['Documentation'] || '',
         repository,
         licenses,
         keywords,

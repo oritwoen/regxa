@@ -215,6 +215,7 @@ interface Package {
   name: string
   description: string
   homepage: string
+  documentation: string  // docs URL (docs.rs, readthedocs, rubydoc, etc.)
   repository: string
   licenses: string       // SPDX-normalized
   keywords: string[]

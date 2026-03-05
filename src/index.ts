@@ -22,6 +22,8 @@ export {
   fetchDependenciesFromPURL,
   fetchMaintainersFromPURL,
   bulkFetchPackages,
+  selectVersion,
+  resolveDocsUrl,
 } from './helpers.ts'
 
 // Types

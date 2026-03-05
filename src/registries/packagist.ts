@@ -89,6 +89,7 @@ class PackagistRegistry implements Registry {
         name: packageData.name,
         description: packageData.description || '',
         homepage: '',
+        documentation: '',
         repository: normalizeRepositoryURL(packageData.repository || latestVersionData.source?.url || ''),
         licenses,
         keywords: packageData.keywords || [],

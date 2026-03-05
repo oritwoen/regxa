@@ -103,6 +103,7 @@ class NpmRegistry implements Registry {
         name: data.name,
         description: data.description || '',
         homepage: data.homepage || '',
+        documentation: '',
         repository: normalizeRepositoryURL(data.repository || ''),
         licenses,
         keywords: data.keywords || [],

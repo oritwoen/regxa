@@ -5,6 +5,7 @@ export interface Package {
   name: string
   description: string
   homepage: string
+  documentation: string
   repository: string
   licenses: string
   keywords: string[]
