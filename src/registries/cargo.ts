@@ -272,6 +272,11 @@ class CargoRegistry implements Registry {
       documentation: (name: string, version?: string) => {
         return version ? `https://docs.rs/${name}/${version}` : `https://docs.rs/${name}`
       },
+      readme: (name: string, version?: string) => {
+        return version
+          ? `https://crates.io/api/v1/crates/${name}/${version}/readme`
+          : `https://crates.io/api/v1/crates/${name}/readme`
+      },
       purl: (name: string, version?: string) => {
         const versionSuffix = version ? `@${version}` : ''
         return `pkg:cargo/${name}${versionSuffix}`
