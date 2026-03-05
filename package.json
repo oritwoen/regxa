@@ -1,0 +1,74 @@
+{
+  "name": "unpux",
+  "version": "0.1.1",
+  "description": "Universal package registry client. Query npm, PyPI, crates.io, RubyGems, Packagist and more with a single PURL-native API.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "author": "oritwoen (https://github.com/oritwoen)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oritwoen/unpux.git"
+  },
+  "homepage": "https://github.com/oritwoen/unpux#readme",
+  "bugs": "https://github.com/oritwoen/unpux/issues",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./registries": {
+      "types": "./dist/registries/index.d.mts",
+      "import": "./dist/registries/index.mjs"
+    },
+    "./cache": {
+      "types": "./dist/cache/index.d.mts",
+      "import": "./dist/cache/index.mjs"
+    }
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "bin": {
+    "unpux": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "build": "obuild",
+    "dev:prepare": "obuild --stub",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "prepack": "pnpm run build",
+    "release": "pnpm test:run && pnpm build && changelogen --release --push"
+  },
+  "keywords": [
+    "package-registry",
+    "purl",
+    "npm",
+    "pypi",
+    "crates",
+    "rubygems",
+    "packagist",
+    "universal",
+    "metadata"
+  ],
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "changelogen": "^0.6.2",
+    "obuild": "^0.4.31",
+    "typescript": "^5.8.3",
+    "vitest": "^4.0.0"
+  },
+  "dependencies": {
+    "citty": "^0.2.1",
+    "consola": "^3.4.2",
+    "ofetch": "^1.5.1",
+    "unstorage": "^1.17.4"
+  }
+}
