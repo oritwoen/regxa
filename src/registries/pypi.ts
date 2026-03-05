@@ -220,6 +220,12 @@ class PyPIRegistry implements Registry {
         const normalized = this.normalizeName(name)
         return `https://pypi.org/project/${normalized}`
       },
+      readme: (name: string, version?: string) => {
+        const normalized = this.normalizeName(name)
+        return version
+          ? `https://pypi.org/project/${normalized}/${version}/`
+          : `https://pypi.org/project/${normalized}/`
+      },
       purl: (name: string, version?: string) => {
         const normalized = this.normalizeName(name)
         const versionSuffix = version ? `@${version}` : ''

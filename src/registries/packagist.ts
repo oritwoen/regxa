@@ -248,6 +248,10 @@ class PackagistRegistry implements Registry {
         const [vendor, pkg] = this.parseName(name)
         return `https://packagist.org/packages/${vendor}/${pkg}`
       },
+      readme: (name: string, _version?: string) => {
+        const [vendor, pkg] = this.parseName(name)
+        return `https://packagist.org/packages/${vendor}/${pkg}`
+      },
       purl: (name: string, version?: string) => {
         const versionSuffix = version ? `@${version}` : ''
         return `pkg:composer/${name}${versionSuffix}`

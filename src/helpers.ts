@@ -106,3 +106,12 @@ export function selectVersion(versions: Version[], options?: {
 export function resolveDocsUrl(pkg: Package, urls: URLBuilder, version?: string): string {
   return pkg.documentation || pkg.homepage || urls.documentation(pkg.name, version)
 }
+
+/**
+ * Resolve the best README URL for a package.
+ *
+ * Returns the ecosystem-specific URL where the package README can be fetched.
+ */
+export function resolveReadmeUrl(pkg: Package, urls: URLBuilder, version?: string): string {
+  return urls.readme(pkg.name, version)
+}

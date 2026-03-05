@@ -52,6 +52,7 @@ function createMockRegistry(ecosystem: string, overrides?: Partial<Registry>): R
       registry: () => `https://${ecosystem}.example.com`,
       download: () => `https://${ecosystem}.example.com/download`,
       documentation: () => `https://${ecosystem}.example.com/docs`,
+      readme: () => `https://${ecosystem}.example.com/readme`,
       purl: () => `pkg:${ecosystem}/`,
     }),
     fetchPackage: async () => ({

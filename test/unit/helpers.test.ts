@@ -1,5 +1,5 @@
 import type { Package, Version, URLBuilder } from '../../src/core/types.ts'
-import { selectVersion, resolveDocsUrl } from '../../src/helpers.ts'
+import { selectVersion, resolveDocsUrl, resolveReadmeUrl } from '../../src/helpers.ts'
 
 function version(num: string, status: '' | 'yanked' | 'deprecated' | 'retracted' = '', date = '2024-01-01T00:00:00Z'): Version {
   return {
@@ -32,6 +32,7 @@ const stubUrls: URLBuilder = {
   registry: () => '',
   download: () => '',
   documentation: (name: string, ver?: string) => `https://docs.example.com/${name}/${ver ?? 'latest'}`,
+  readme: (name: string, ver?: string) => `https://readme.example.com/${name}/${ver ?? 'latest'}`,
   purl: () => '',
 }
 
@@ -133,5 +134,22 @@ describe('resolveDocsUrl', () => {
   it('does not fall through when documentation is set even if homepage exists', () => {
     const p = pkg({ documentation: 'https://docs.rs/serde', homepage: 'https://serde.rs' })
     expect(resolveDocsUrl(p, stubUrls)).toBe('https://docs.rs/serde')
+  })
+})
+
+describe('resolveReadmeUrl', () => {
+  it('returns ecosystem-specific readme URL with version', () => {
+    const p = pkg()
+    expect(resolveReadmeUrl(p, stubUrls, '1.0.0')).toBe('https://readme.example.com/test/1.0.0')
+  })
+
+  it('returns ecosystem-specific readme URL without version', () => {
+    const p = pkg()
+    expect(resolveReadmeUrl(p, stubUrls)).toBe('https://readme.example.com/test/latest')
+  })
+
+  it('uses package name for URL construction', () => {
+    const p = pkg({ name: 'serde' })
+    expect(resolveReadmeUrl(p, stubUrls, '1.0.220')).toBe('https://readme.example.com/serde/1.0.220')
   })
 })

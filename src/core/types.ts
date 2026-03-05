@@ -50,6 +50,7 @@ export interface URLBuilder {
   registry(name: string, version?: string): string
   download(name: string, version: string): string
   documentation(name: string, version?: string): string
+  readme(name: string, version?: string): string
   purl(name: string, version?: string): string
 }
 

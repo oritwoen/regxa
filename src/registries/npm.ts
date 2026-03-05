@@ -325,6 +325,10 @@ class NpmRegistry implements Registry {
       documentation: (name: string, _version?: string) => {
         return `https://www.npmjs.com/package/${name}`
       },
+      readme: (name: string, version?: string) => {
+        const ver = version ? `@${version}` : ''
+        return `https://cdn.jsdelivr.net/npm/${name}${ver}/README.md`
+      },
       purl: (name: string, version?: string) => {
         const versionSuffix = version ? `@${version}` : ''
         return `pkg:npm/${name}${versionSuffix}`

@@ -26,6 +26,7 @@ describe('registry', () => {
           registry: () => '',
           download: () => '',
           documentation: () => '',
+          readme: () => '',
           purl: () => '',
         }),
       })
@@ -55,6 +56,7 @@ describe('registry', () => {
           registry: () => '',
           download: () => '',
           documentation: () => '',
+          readme: () => '',
           purl: () => '',
         }),
       })
@@ -87,6 +89,7 @@ describe('registry', () => {
           registry: () => '',
           download: () => '',
           documentation: () => '',
+          readme: () => '',
           purl: () => '',
         }),
       })
@@ -134,6 +137,7 @@ describe('registry', () => {
           registry: () => baseURL,
           download: () => '',
           documentation: () => '',
+          readme: () => '',
           purl: () => '',
         }),
       })
@@ -164,6 +168,7 @@ describe('registry', () => {
           registry: () => baseURL,
           download: () => '',
           documentation: () => '',
+          readme: () => '',
           purl: () => '',
         }),
       })
@@ -196,6 +201,7 @@ describe('registry', () => {
           registry: () => '',
           download: () => '',
           documentation: () => '',
+          readme: () => '',
           purl: () => '',
         }),
       })
@@ -236,6 +242,7 @@ describe('registry', () => {
           registry: () => '',
           download: () => '',
           documentation: () => '',
+          readme: () => '',
           purl: () => '',
         }),
       })
@@ -269,6 +276,7 @@ describe('registry', () => {
           registry: () => '',
           download: () => '',
           documentation: () => '',
+          readme: () => '',
           purl: () => '',
         }),
       })
@@ -302,6 +310,7 @@ describe('registry', () => {
           registry: () => '',
           download: () => '',
           documentation: () => '',
+          readme: () => '',
           purl: () => '',
         }),
       })

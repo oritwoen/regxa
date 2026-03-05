@@ -218,6 +218,10 @@ class RubyGemsRegistry implements Registry {
         const versionSuffix = version ? `/${version}` : ''
         return `https://www.rubydoc.info/gems/${name}${versionSuffix}`
       },
+      readme: (name: string, version?: string) => {
+        const base = `https://rubygems.org/gems/${name}`
+        return version ? `${base}/versions/${version}` : base
+      },
       purl: (name: string, version?: string) => {
         const versionSuffix = version ? `@${version}` : ''
         return `pkg:gem/${name}${versionSuffix}`
