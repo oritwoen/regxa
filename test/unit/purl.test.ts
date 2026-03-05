@@ -191,12 +191,12 @@ describe('purl', () => {
 
     it('builds PURL with subpath', () => {
       expect(buildPURL({ type: 'npm', name: 'lodash', subpath: 'lib/index.js' }))
-        .toBe('pkg:npm/lodash#lib%2Findex.js')
+        .toBe('pkg:npm/lodash#lib/index.js')
     })
 
     it('builds PURL with all components', () => {
       expect(buildPURL({ type: 'npm', name: 'core', version: '7.0.0', namespace: '@babel', qualifiers: { arch: 'x86_64' }, subpath: 'lib/index.js' }))
-        .toBe('pkg:npm/%40babel/core@7.0.0?arch=x86_64#lib%2Findex.js')
+        .toBe('pkg:npm/%40babel/core@7.0.0?arch=x86_64#lib/index.js')
     })
 
     it('skips empty qualifiers object', () => {
@@ -225,12 +225,12 @@ describe('purl', () => {
     })
 
     it('round-trips a PURL with subpath', () => {
-      const original = 'pkg:npm/lodash#lib%2Findex.js'
+      const original = 'pkg:npm/lodash#lib/index.js'
       expect(buildPURL(parsePURL(original))).toBe(original)
     })
 
     it('round-trips a full PURL with all components', () => {
-      const original = 'pkg:npm/%40babel/core@7.0.0?arch=x86_64#lib%2Findex.js'
+      const original = 'pkg:npm/%40babel/core@7.0.0?arch=x86_64#lib/index.js'
       expect(buildPURL(parsePURL(original))).toBe(original)
     })
   })

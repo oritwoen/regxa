@@ -21,7 +21,7 @@ export function parsePURL(purlStr: string): ParsedPURL {
   let subpath = ''
   const hashIdx = remainder.indexOf('#')
   if (hashIdx !== -1) {
-    subpath = decodeURIComponent(remainder.slice(hashIdx + 1))
+    subpath = remainder.slice(hashIdx + 1).split('/').map(s => decodeURIComponent(s)).join('/')
     remainder = remainder.slice(0, hashIdx)
   }
 
@@ -124,7 +124,7 @@ export function buildPURL(parts: {
     purl += `?${qs}`
   }
   if (parts.subpath) {
-    purl += `#${encodeURIComponent(parts.subpath)}`
+    purl += `#${parts.subpath.split('/').map(s => encodeURIComponent(s)).join('/')}`
   }
   return purl
 }
