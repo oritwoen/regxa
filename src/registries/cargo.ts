@@ -275,7 +275,7 @@ class CargoRegistry implements Registry {
       readme: (name: string, version?: string) => {
         return version
           ? `https://crates.io/api/v1/crates/${name}/${version}/readme`
-          : `https://crates.io/api/v1/crates/${name}/readme`
+          : `https://crates.io/crates/${name}`
       },
       purl: (name: string, version?: string) => {
         const versionSuffix = version ? `@${version}` : ''
