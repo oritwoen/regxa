@@ -156,35 +156,82 @@ describe('purl', () => {
 
   describe('buildPURL', () => {
     it('builds simple PURL', () => {
-      const purl = buildPURL('npm', 'lodash')
-      expect(purl).toBe('pkg:npm/lodash')
+      expect(buildPURL({ type: 'npm', name: 'lodash' })).toBe('pkg:npm/lodash')
     })
 
     it('builds PURL with version', () => {
-      const purl = buildPURL('npm', 'lodash', '4.17.21')
-      expect(purl).toBe('pkg:npm/lodash@4.17.21')
+      expect(buildPURL({ type: 'npm', name: 'lodash', version: '4.17.21' })).toBe('pkg:npm/lodash@4.17.21')
     })
 
     it('builds PURL with namespace', () => {
-      const purl = buildPURL('npm', 'core', '7.0.0', '@babel')
-      expect(purl).toBe('pkg:npm/%40babel/core@7.0.0')
+      expect(buildPURL({ type: 'npm', name: 'core', version: '7.0.0', namespace: '@babel' })).toBe('pkg:npm/%40babel/core@7.0.0')
     })
 
     it('encodes special characters in name', () => {
-      const purl = buildPURL('npm', 'my package')
-      expect(purl).toBe('pkg:npm/my%20package')
+      expect(buildPURL({ type: 'npm', name: 'my package' })).toBe('pkg:npm/my%20package')
     })
 
     it('encodes special characters in namespace', () => {
-      const purl = buildPURL('npm', 'core', undefined, '@my org')
-      expect(purl).toBe('pkg:npm/%40my%20org/core')
+      expect(buildPURL({ type: 'npm', name: 'core', namespace: '@my org' })).toBe('pkg:npm/%40my%20org/core')
     })
 
     it('encodes special characters in version', () => {
-      const purl = buildPURL('npm', 'lodash', '1.0.0+build.123')
-      expect(purl).toBe('pkg:npm/lodash@1.0.0%2Bbuild.123')
+      expect(buildPURL({ type: 'npm', name: 'lodash', version: '1.0.0+build.123' })).toBe('pkg:npm/lodash@1.0.0%2Bbuild.123')
+    })
+
+    it('builds PURL with qualifiers', () => {
+      expect(buildPURL({ type: 'npm', name: 'lodash', version: '4.17.21', qualifiers: { repository_url: 'https://custom.registry.com' } }))
+        .toBe('pkg:npm/lodash@4.17.21?repository_url=https%3A%2F%2Fcustom.registry.com')
+    })
+
+    it('builds PURL with multiple qualifiers', () => {
+      expect(buildPURL({ type: 'npm', name: 'lodash', qualifiers: { arch: 'x86_64', os: 'linux' } }))
+        .toBe('pkg:npm/lodash?arch=x86_64&os=linux')
+    })
+
+    it('builds PURL with subpath', () => {
+      expect(buildPURL({ type: 'npm', name: 'lodash', subpath: 'lib/index.js' }))
+        .toBe('pkg:npm/lodash#lib%2Findex.js')
+    })
+
+    it('builds PURL with all components', () => {
+      expect(buildPURL({ type: 'npm', name: 'core', version: '7.0.0', namespace: '@babel', qualifiers: { arch: 'x86_64' }, subpath: 'lib/index.js' }))
+        .toBe('pkg:npm/%40babel/core@7.0.0?arch=x86_64#lib%2Findex.js')
+    })
+
+    it('skips empty qualifiers object', () => {
+      expect(buildPURL({ type: 'npm', name: 'lodash', version: '1.0.0', qualifiers: {} }))
+        .toBe('pkg:npm/lodash@1.0.0')
+    })
+
+    it('round-trips a simple PURL through parsePURL', () => {
+      const original = 'pkg:npm/lodash'
+      expect(buildPURL(parsePURL(original))).toBe(original)
+    })
+
+    it('round-trips a versioned PURL', () => {
+      const original = 'pkg:cargo/serde@1.0.0'
+      expect(buildPURL(parsePURL(original))).toBe(original)
+    })
+
+    it('round-trips a scoped PURL', () => {
+      const original = 'pkg:npm/%40babel/core@7.0.0'
+      expect(buildPURL(parsePURL(original))).toBe(original)
+    })
+
+    it('round-trips a PURL with qualifiers', () => {
+      const original = 'pkg:npm/lodash?repository_url=https%3A%2F%2Fcustom.registry.com'
+      expect(buildPURL(parsePURL(original))).toBe(original)
+    })
+
+    it('round-trips a PURL with subpath', () => {
+      const original = 'pkg:npm/lodash#lib%2Findex.js'
+      expect(buildPURL(parsePURL(original))).toBe(original)
+    })
+
+    it('round-trips a full PURL with all components', () => {
+      const original = 'pkg:npm/%40babel/core@7.0.0?arch=x86_64#lib%2Findex.js'
+      expect(buildPURL(parsePURL(original))).toBe(original)
     })
   })
-
-
 })
