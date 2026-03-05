@@ -63,7 +63,7 @@ export async function bulkFetchPackages(
  * Resolution order:
  * 1. Exact match for `requested` (non-yanked/deprecated/retracted)
  * 2. Exact match for `latest` (non-yanked/deprecated/retracted)
- * 3. First available version with no negative status
+ * 3. Newest available version with no negative status (by publishedAt)
  *
  * Returns `null` when no usable version exists.
  */
@@ -83,7 +83,16 @@ export function selectVersion(versions: Version[], options?: {
     if (latestV) return latestV
   }
 
-  return versions.find(v => v.status === '') ?? null
+  const usable = versions.filter(v => v.status === '')
+  if (usable.length === 0) return null
+
+  usable.sort((a, b) => {
+    const at = a.publishedAt?.getTime() ?? 0
+    const bt = b.publishedAt?.getTime() ?? 0
+    return bt - at
+  })
+
+  return usable[0] ?? null
 }
 
 /**

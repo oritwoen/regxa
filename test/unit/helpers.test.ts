@@ -1,11 +1,10 @@
-import { describe, it, expect } from 'vitest'
 import type { Package, Version, URLBuilder } from '../../src/core/types.ts'
 import { selectVersion, resolveDocsUrl } from '../../src/helpers.ts'
 
-function version(num: string, status: '' | 'yanked' | 'deprecated' | 'retracted' = ''): Version {
+function version(num: string, status: '' | 'yanked' | 'deprecated' | 'retracted' = '', date = '2024-01-01T00:00:00Z'): Version {
   return {
     number: num,
-    publishedAt: new Date('2024-01-01T00:00:00Z'),
+    publishedAt: new Date(date),
     licenses: '',
     integrity: '',
     status,
@@ -82,15 +81,25 @@ describe('selectVersion', () => {
     expect(result).toBeNull()
   })
 
-  it('works without options — returns first clean version', () => {
-    const versions = [version('1.0.0', 'yanked'), version('2.0.0')]
+  it('works without options — returns newest clean version', () => {
+    const versions = [version('1.0.0', 'yanked'), version('2.0.0', '', '2024-06-01'), version('3.0.0', '', '2024-01-01')]
     const result = selectVersion(versions)
     expect(result?.number).toBe('2.0.0')
   })
 
-  it('returns null when requested version does not exist', () => {
+  it('falls back to latest when requested version does not exist', () => {
     const versions = [version('1.0.0'), version('2.0.0')]
     const result = selectVersion(versions, { requested: '9.9.9', latest: '2.0.0' })
+    expect(result?.number).toBe('2.0.0')
+  })
+
+  it('returns newest clean version when fallback is needed', () => {
+    const versions = [
+      version('1.0.0', '', '2024-01-01'),
+      version('2.0.0', '', '2024-09-01'),
+      version('3.0.0', '', '2024-06-01'),
+    ]
+    const result = selectVersion(versions, { requested: '9.9.9' })
     expect(result?.number).toBe('2.0.0')
   })
 })

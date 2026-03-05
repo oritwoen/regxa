@@ -19,6 +19,7 @@ interface RubyGemsGemResponse {
   version?: string
   description: string
   homepage_uri?: string
+  documentation_uri?: string
   source_code_uri?: string
   licenses?: string[]
   metadata?: Record<string, unknown>
@@ -83,7 +84,7 @@ class RubyGemsRegistry implements Registry {
         name: data.name,
         description: data.description || '',
         homepage: data.homepage_uri || '',
-        documentation: (data.metadata?.documentation_uri as string) || '',
+        documentation: data.documentation_uri || '',
         repository,
         licenses,
         keywords: [],
