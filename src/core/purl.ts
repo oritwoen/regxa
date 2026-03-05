@@ -69,7 +69,7 @@ export function parsePURL(purlStr: string): ParsedPURL {
   let name: string
 
   if (lastSlashIdx !== -1) {
-    namespace = decodeURIComponent(rest.slice(0, lastSlashIdx))
+    namespace = rest.slice(0, lastSlashIdx).split('/').map(s => decodeURIComponent(s)).join('/')
     name = decodeURIComponent(rest.slice(lastSlashIdx + 1))
   }
   else {
@@ -111,7 +111,7 @@ export function buildPURL(parts: {
 }): string {
   let purl = `pkg:${parts.type}/`
   if (parts.namespace) {
-    purl += `${encodeURIComponent(parts.namespace)}/`
+    purl += `${parts.namespace.split('/').map(s => encodeURIComponent(s)).join('/')}/`
   }
   purl += encodeURIComponent(parts.name)
   if (parts.version) {
