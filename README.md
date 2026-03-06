@@ -4,7 +4,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/regxa?style=flat&colorA=130f40&colorB=474787)](https://npm.chart.dev/regxa)
 [![license](https://img.shields.io/github/license/oritwoen/regxa?style=flat&colorA=130f40&colorB=474787)](https://github.com/oritwoen/regxa/blob/main/LICENSE)
 
-> Query npm, PyPI, crates.io, RubyGems, and Packagist with one API. PURL-native, typed, cached.
+> Query npm, PyPI, crates.io, RubyGems, Packagist, and Arch Linux with one API. PURL-native, typed, cached.
 
 ## Why?
 
@@ -16,7 +16,7 @@ regxa fills that gap. One `fetchPackage` call, same response shape, regardless o
 
 ## Features
 
-- 🔍 **Single API, five registries** — npm, PyPI, crates.io, RubyGems, Packagist
+- 🔍 **Single API, six registries** — npm, PyPI, crates.io, RubyGems, Packagist, Arch Linux (official + AUR)
 - 📦 **PURL-native** — [ECMA-427](https://github.com/package-url/purl-spec) identifiers as first-class input
 - 🏷️ **Normalized data model** — same `Package`, `Version`, `Dependency`, `Maintainer` types everywhere
 - 💾 **Storage-backed cache + lockfile** — unstorage-native, sha256 integrity checks, configurable TTL
@@ -52,6 +52,7 @@ await fetchPackageFromPURL('pkg:cargo/serde')
 await fetchPackageFromPURL('pkg:pypi/flask')
 await fetchPackageFromPURL('pkg:gem/rails')
 await fetchPackageFromPURL('pkg:composer/laravel/framework')
+await fetchPackageFromPURL('pkg:alpm/arch/pacman')
 ```
 
 ### CLI
@@ -63,6 +64,7 @@ regxa info npm/lodash
 regxa versions cargo/serde
 regxa deps pypi/flask@3.1.1
 regxa maintainers gem/rails
+regxa deps alpm/aur/yay
 ```
 
 Add `--json` for machine-readable output, `--no-cache` to skip the cache.
@@ -76,8 +78,11 @@ Add `--json` for machine-readable output, `--no-cache` to skip the cache.
 | PyPI | `pkg:pypi/...` | pypi.org |
 | RubyGems | `pkg:gem/...` | rubygems.org |
 | Packagist | `pkg:composer/...` | packagist.org |
+| Arch Linux | `pkg:alpm/...` | archlinux.org, aur.archlinux.org |
 
 Scoped packages work as expected: `pkg:npm/%40vue/core` or `npm/@vue/core` in the CLI.
+
+Arch Linux packages use a namespace prefix: `pkg:alpm/arch/pacman` for official repos, `pkg:alpm/aur/yay` for AUR. The namespace defaults to `arch` if omitted.
 
 ## API reference
 
