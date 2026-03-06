@@ -82,7 +82,7 @@ Add `--json` for machine-readable output, `--no-cache` to skip the cache.
 
 Scoped packages work as expected: `pkg:npm/%40vue/core` or `npm/@vue/core` in the CLI.
 
-Arch Linux packages use a namespace prefix: `pkg:alpm/arch/pacman` for official repos, `pkg:alpm/aur/paru` for AUR. The namespace defaults to `arch` if omitted.
+Arch Linux packages use a namespace: `pkg:alpm/arch/pacman` (or just `pkg:alpm/pacman`) for official repos, `pkg:alpm/aur/paru` for AUR. Official packages default to `arch` when the namespace is omitted; AUR requires the explicit `aur` namespace.
 
 ## API reference
 
