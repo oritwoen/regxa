@@ -162,8 +162,7 @@ describe('fetchDependenciesFromPURL', () => {
   })
 
   it('includes PURL string in InvalidPURLError', async () => {
-    await expect(fetchDependenciesFromPURL('pkg:npm/lodash')).rejects.toThrow(
-      /must include a version/
-    )
+    const purl = 'pkg:npm/lodash'
+    await expect(fetchDependenciesFromPURL(purl)).rejects.toThrow(purl)
   })
 })

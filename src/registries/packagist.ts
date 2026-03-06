@@ -262,8 +262,8 @@ class PackagistRegistry implements Registry {
   /** Parse "vendor/package" format. */
   private parseName(name: string): [string, string] {
     const parts = name.split('/')
-    if (parts.length !== 2) {
-      throw new InvalidPURLError(name, 'invalid Composer package name, expected "vendor/package" format')
+    if (parts.length !== 2 || !parts[0] || !parts[1]) {
+      throw new InvalidPURLError(`pkg:composer/${name}`, 'invalid Composer package name, expected "vendor/package" format')
     }
     return [parts[0]!, parts[1]!]
   }
