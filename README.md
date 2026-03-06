@@ -64,7 +64,7 @@ regxa info npm/lodash
 regxa versions cargo/serde
 regxa deps pypi/flask@3.1.1
 regxa maintainers gem/rails
-regxa deps alpm/aur/yay
+regxa deps alpm/aur/paru
 ```
 
 Add `--json` for machine-readable output, `--no-cache` to skip the cache.
@@ -82,7 +82,7 @@ Add `--json` for machine-readable output, `--no-cache` to skip the cache.
 
 Scoped packages work as expected: `pkg:npm/%40vue/core` or `npm/@vue/core` in the CLI.
 
-Arch Linux packages use a namespace prefix: `pkg:alpm/arch/pacman` for official repos, `pkg:alpm/aur/yay` for AUR. The namespace defaults to `arch` if omitted.
+Arch Linux packages use a namespace prefix: `pkg:alpm/arch/pacman` for official repos, `pkg:alpm/aur/paru` for AUR. The namespace defaults to `arch` if omitted.
 
 ## API reference
 
