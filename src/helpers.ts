@@ -1,6 +1,7 @@
 import type { Package, Version, Dependency, Maintainer, URLBuilder } from './core/types.ts'
 import type { Client } from './core/client.ts'
 import { createFromPURL } from './core/purl.ts'
+import { InvalidPURLError } from './core/errors.ts'
 
 /** Fetch normalized package metadata from a PURL. */
 export async function fetchPackageFromPURL(purl: string, signal?: AbortSignal, client?: Client): Promise<Package> {
@@ -18,7 +19,7 @@ export async function fetchVersionsFromPURL(purl: string, signal?: AbortSignal, 
 export async function fetchDependenciesFromPURL(purl: string, signal?: AbortSignal, client?: Client): Promise<Dependency[]> {
   const [reg, name, version] = createFromPURL(purl, client)
   if (!version) {
-    throw new Error(`PURL must include a version for dependency lookup: ${purl}`)
+    throw new InvalidPURLError(purl, 'must include a version for dependency lookup')
   }
   return reg.fetchDependencies(name, version, signal)
 }

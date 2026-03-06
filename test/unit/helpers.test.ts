@@ -1,5 +1,7 @@
 import type { Package, Version, URLBuilder } from '../../src/core/types.ts'
-import { selectVersion, resolveDocsUrl, resolveReadmeUrl } from '../../src/helpers.ts'
+import { selectVersion, resolveDocsUrl, resolveReadmeUrl, fetchDependenciesFromPURL } from '../../src/helpers.ts'
+import { InvalidPURLError } from '../../src/core/errors.ts'
+import '../../src/registries/index.ts'
 
 function version(num: string, status: '' | 'yanked' | 'deprecated' | 'retracted' = '', date = '2024-01-01T00:00:00Z'): Version {
   return {
@@ -151,5 +153,17 @@ describe('resolveReadmeUrl', () => {
   it('uses package name for URL construction', () => {
     const p = pkg({ name: 'serde' })
     expect(resolveReadmeUrl(p, stubUrls, '1.0.220')).toBe('https://readme.example.com/serde/1.0.220')
+  })
+})
+
+describe('fetchDependenciesFromPURL', () => {
+  it('throws InvalidPURLError when PURL has no version', async () => {
+    await expect(fetchDependenciesFromPURL('pkg:npm/lodash')).rejects.toThrow(InvalidPURLError)
+  })
+
+  it('includes PURL string in InvalidPURLError', async () => {
+    await expect(fetchDependenciesFromPURL('pkg:npm/lodash')).rejects.toThrow(
+      /must include a version/
+    )
   })
 })
