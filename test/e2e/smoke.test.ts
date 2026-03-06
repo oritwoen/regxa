@@ -8,14 +8,15 @@ import { create, ecosystems, has } from '../../src/core/registry.ts'
 import '../../src/registries/index.ts'
 
 describe('registry smoke tests', () => {
-  it('all 5 ecosystems are registered', () => {
+  it('all 6 ecosystems are registered', () => {
     const registered = ecosystems()
     expect(registered).toContain('npm')
     expect(registered).toContain('cargo')
     expect(registered).toContain('pypi')
     expect(registered).toContain('gem')
     expect(registered).toContain('composer')
-    expect(registered).toHaveLength(5)
+    expect(registered).toContain('alpm')
+    expect(registered).toHaveLength(6)
   })
 
   it('has() returns correct values', () => {
@@ -85,6 +86,27 @@ describe('registry smoke tests', () => {
       expect(pkg.name).toBe('laravel/framework')
       expect(pkg.licenses).toBeTruthy()
       expect(pkg.namespace).toBe('laravel')
+    })
+  })
+
+  describe('alpm — pacman (official)', { timeout: 15_000 }, () => {
+    it('fetchPackage', async () => {
+      const reg = create('alpm')
+      const pkg = await reg.fetchPackage('arch/pacman')
+      expect(pkg.name).toBe('pacman')
+      expect(pkg.licenses).toBeTruthy()
+      expect(pkg.namespace).toBe('arch')
+      expect(pkg.latestVersion).toBeTruthy()
+    })
+  })
+
+  describe('alpm — yay (AUR)', { timeout: 15_000 }, () => {
+    it('fetchPackage', async () => {
+      const reg = create('alpm')
+      const pkg = await reg.fetchPackage('aur/yay')
+      expect(pkg.name).toBe('yay')
+      expect(pkg.namespace).toBe('aur')
+      expect(pkg.latestVersion).toBeTruthy()
     })
   })
 })

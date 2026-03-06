@@ -81,6 +81,10 @@ export function parsePURL(purlStr: string): ParsedPURL {
     name = name.toLowerCase().replace(/_/g, '-')
   }
 
+  if (type === 'alpm') {
+    name = name.toLowerCase()
+  }
+
   return { type, namespace, name, version, qualifiers, subpath }
 }
 
