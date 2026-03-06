@@ -9,7 +9,7 @@ import type {
   Version,
 } from '../core/types.ts'
 import { register } from '../core/registry.ts'
-import { HTTPError, NotFoundError } from '../core/errors.ts'
+import { HTTPError, NotFoundError, InvalidPURLError } from '../core/errors.ts'
 import { combineLicenses } from '../core/license.ts'
 import { normalizeRepositoryURL } from '../core/repository.ts'
 
@@ -262,8 +262,8 @@ class PackagistRegistry implements Registry {
   /** Parse "vendor/package" format. */
   private parseName(name: string): [string, string] {
     const parts = name.split('/')
-    if (parts.length !== 2) {
-      throw new Error(`Invalid Composer package name: ${name}`)
+    if (parts.length !== 2 || !parts[0] || !parts[1]) {
+      throw new InvalidPURLError(`pkg:composer/${name}`, 'invalid Composer package name, expected "vendor/package" format')
     }
     return [parts[0]!, parts[1]!]
   }
