@@ -17,6 +17,10 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
+    "./ai": {
+      "types": "./dist/ai.d.mts",
+      "import": "./dist/ai.mjs"
+    },
     "./registries": {
       "types": "./dist/registries/index.d.mts",
       "import": "./dist/registries/index.mjs"
@@ -60,15 +64,29 @@
   ],
   "devDependencies": {
     "@types/node": "^25.3.0",
+    "ai": "^6.0.116",
     "changelogen": "^0.6.2",
     "obuild": "^0.4.31",
     "typescript": "^5.8.3",
-    "vitest": "^4.0.0"
+    "vitest": "^4.0.0",
+    "zod": "^4.3.6"
   },
   "dependencies": {
     "citty": "^0.2.1",
     "consola": "^3.4.2",
     "ofetch": "^1.5.1",
     "unstorage": "^1.17.4"
+  },
+  "peerDependencies": {
+    "ai": "^6.0.116",
+    "zod": "^4.3.6"
+  },
+  "peerDependenciesMeta": {
+    "ai": {
+      "optional": true
+    },
+    "zod": {
+      "optional": true
+    }
   }
 }

@@ -30,6 +30,12 @@ regxa fills that gap. One `fetchPackage` call, same response shape, regardless o
 pnpm add regxa
 ```
 
+For the AI SDK tool (`regxa/ai` subpath), also install `ai` and `zod`:
+
+```bash
+pnpm add ai zod
+```
+
 ## Quick start
 
 ### API
@@ -68,6 +74,31 @@ regxa deps alpm/aur/paru
 ```
 
 Add `--json` for machine-readable output, `--no-cache` to skip the cache.
+
+### AI SDK tool
+
+`regxa/ai` exports a ready-made tool for AI SDK apps:
+
+```ts
+import { generateText } from 'ai'
+import { packageTool } from 'regxa/ai'
+
+const { text } = await generateText({
+  model: yourModel,
+  tools: { packageRegistry: packageTool },
+  prompt: 'Show me the latest metadata for pkg:npm/lodash and then list its maintainers.',
+})
+```
+
+The tool supports these operations through one input schema:
+
+```ts
+// { operation: 'package', purl: 'pkg:npm/lodash' }
+// { operation: 'versions', purl: 'pkg:cargo/serde' }
+// { operation: 'dependencies', purl: 'pkg:pypi/flask@3.1.1' }
+// { operation: 'maintainers', purl: 'pkg:gem/rails' }
+// { operation: 'bulk-packages', purls: ['pkg:npm/lodash', 'pkg:cargo/serde'], concurrency?: number }
+```
 
 ## Registries
 

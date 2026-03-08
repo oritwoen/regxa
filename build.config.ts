@@ -6,6 +6,7 @@ export default defineBuildConfig({
       type: 'bundle',
       input: [
         './src/index.ts',
+        './src/ai.ts',
         './src/types.ts',
         './src/core/index.ts',
         './src/registries/index.ts',
