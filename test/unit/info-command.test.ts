@@ -1,4 +1,3 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
 import consola from "consola";
 import type { Package, Registry } from "../../src/core/types.ts";
 import { outputPackageInfo } from "../../src/commands/info.ts";

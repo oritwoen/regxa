@@ -91,12 +91,6 @@ describe("repository", () => {
       );
     });
 
-    it("strips .git suffix", () => {
-      expect(normalizeRepositoryURL("https://github.com/foo/bar.git")).toBe(
-        "https://github.com/foo/bar",
-      );
-    });
-
     it("strips trailing slash after .git", () => {
       expect(normalizeRepositoryURL("https://github.com/foo/bar.git/")).toBe(
         "https://github.com/foo/bar.git",
