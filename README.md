@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/regxa?style=flat&colorA=130f40&colorB=474787)](https://npmjs.com/package/regxa)
 [![npm downloads](https://img.shields.io/npm/dm/regxa?style=flat&colorA=130f40&colorB=474787)](https://npm.chart.dev/regxa)
 [![license](https://img.shields.io/github/license/oritwoen/regxa?style=flat&colorA=130f40&colorB=474787)](https://github.com/oritwoen/regxa/blob/main/LICENSE)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/oritwoen/regxa)
 
 > Query npm, PyPI, crates.io, RubyGems, Packagist, and Arch Linux with one API. PURL-native, typed, cached.
 
@@ -16,13 +17,13 @@ regxa fills that gap. One `fetchPackage` call, same response shape, regardless o
 
 ## Features
 
-- 🔍 **Single API, six registries** — npm, PyPI, crates.io, RubyGems, Packagist, Arch Linux (official + AUR)
-- 📦 **PURL-native** — [ECMA-427](https://github.com/package-url/purl-spec) identifiers as first-class input
-- 🏷️ **Normalized data model** — same `Package`, `Version`, `Dependency`, `Maintainer` types everywhere
-- 💾 **Storage-backed cache + lockfile** — unstorage-native, sha256 integrity checks, configurable TTL
-- ⌨️ **CLI included** — `regxa info npm/lodash`, `regxa versions cargo/serde`, `regxa deps pypi/flask@3.1.1`
-- 🔁 **Retry + backoff** — exponential backoff with jitter, rate limiter interface
-- 🪶 **ESM-only, zero CJS** — built with [obuild](https://github.com/unjs/obuild)
+- 🔍 **Single API, six registries** - npm, PyPI, crates.io, RubyGems, Packagist, Arch Linux (official + AUR)
+- 📦 **PURL-native** - [ECMA-427](https://github.com/package-url/purl-spec) identifiers as first-class input
+- 🏷️ **Normalized data model** - same `Package`, `Version`, `Dependency`, `Maintainer` types everywhere
+- 💾 **Storage-backed cache + lockfile** - unstorage-native, sha256 integrity checks, configurable TTL
+- ⌨️ **CLI included** - `regxa info npm/lodash`, `regxa versions cargo/serde`, `regxa deps pypi/flask@3.1.1`
+- 🔁 **Retry + backoff** - exponential backoff with jitter, rate limiter interface
+- 🪶 **ESM-only, zero CJS** - built with [obuild](https://github.com/unjs/obuild)
 
 ## Install
 
@@ -63,7 +64,7 @@ await fetchPackageFromPURL('pkg:alpm/arch/pacman')
 
 ### CLI
 
-The `pkg:` prefix is optional in the CLI — `npm/lodash` works just as well:
+The `pkg:` prefix is optional in the CLI. `npm/lodash` works just as well:
 
 ```bash
 regxa info npm/lodash
@@ -128,7 +129,7 @@ const versions = await fetchVersionsFromPURL('pkg:cargo/serde')
 const deps = await fetchDependenciesFromPURL('pkg:pypi/flask@3.1.1')
 const maintainers = await fetchMaintainersFromPURL('pkg:gem/rails')
 
-// Bulk — fetches up to 15 packages concurrently
+// Bulk - fetches up to 15 packages concurrently
 const packages = await bulkFetchPackages([
   'pkg:npm/lodash',
   'pkg:cargo/serde',
@@ -195,7 +196,7 @@ const parsed = parsePURL('pkg:npm/%40vue/core@3.5.0')
 
 fullName(parsed) // "@vue/core"
 
-buildPURL('cargo', 'serde', '1.0.0')
+buildPURL({ type: 'cargo', name: 'serde', version: '1.0.0' })
 // "pkg:cargo/serde@1.0.0"
 ```
 
