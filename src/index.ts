@@ -1,9 +1,9 @@
 // Core API
-export { Client, defaultClient } from './core/client.ts'
-export { register, create, ecosystems, has } from './core/registry.ts'
-export { parsePURL, fullName, createFromPURL, buildPURL } from './core/purl.ts'
-export { normalizeLicense, combineLicenses } from './core/license.ts'
-export { normalizeRepositoryURL } from './core/repository.ts'
+export { Client, defaultClient } from "./core/client.ts";
+export { register, create, ecosystems, has } from "./core/registry.ts";
+export { parsePURL, fullName, createFromPURL, buildPURL } from "./core/purl.ts";
+export { normalizeLicense, combineLicenses } from "./core/license.ts";
+export { normalizeRepositoryURL } from "./core/repository.ts";
 
 // Errors
 export {
@@ -13,7 +13,7 @@ export {
   RateLimitError,
   UnknownEcosystemError,
   InvalidPURLError,
-} from './core/errors.ts'
+} from "./core/errors.ts";
 
 // Helpers
 export {
@@ -25,7 +25,7 @@ export {
   selectVersion,
   resolveDocsUrl,
   resolveReadmeUrl,
-} from './helpers.ts'
+} from "./helpers.ts";
 
 // Types
 export type {
@@ -41,14 +41,21 @@ export type {
   ClientOptions,
   RateLimiter,
   ParsedPURL,
-} from './core/types.ts'
+} from "./core/types.ts";
 
 // Cache
-export { getCacheDir } from './cache/paths.ts'
-export { getStorage, getEcosystemStorage, computeIntegrity, disposeStorage, clearStorage, configureStorage } from './cache/storage.ts'
-export { CachedRegistry } from './cache/cached-registry.ts'
-export { createCached } from './cache/index.ts'
-export type { CreateCachedOptions } from './cache/index.ts'
+export { getCacheDir } from "./cache/paths.ts";
+export {
+  getStorage,
+  getEcosystemStorage,
+  computeIntegrity,
+  disposeStorage,
+  clearStorage,
+  configureStorage,
+} from "./cache/storage.ts";
+export { CachedRegistry } from "./cache/cached-registry.ts";
+export { createCached } from "./cache/index.ts";
+export type { CreateCachedOptions } from "./cache/index.ts";
 export {
   readLockfile,
   writeLockfile,
@@ -59,5 +66,5 @@ export {
   removeEntry,
   pruneStale,
   DEFAULT_TTL,
-} from './cache/lockfile.ts'
-export type { Lockfile, LockfileEntry, EntryType } from './cache/lockfile.ts'
+} from "./cache/lockfile.ts";
+export type { Lockfile, LockfileEntry, EntryType } from "./cache/lockfile.ts";

@@ -12,4 +12,4 @@ export type {
   ClientOptions,
   RateLimiter,
   ParsedPURL,
-} from './core/types.ts'
+} from "./core/types.ts";

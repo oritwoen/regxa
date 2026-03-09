@@ -42,24 +42,24 @@ pnpm add ai zod
 ### API
 
 ```ts
-import { fetchPackageFromPURL } from 'regxa'
+import { fetchPackageFromPURL } from "regxa";
 
-const pkg = await fetchPackageFromPURL('pkg:npm/lodash')
+const pkg = await fetchPackageFromPURL("pkg:npm/lodash");
 
-console.log(pkg.name)          // "lodash"
-console.log(pkg.latestVersion) // "4.17.23"
-console.log(pkg.licenses)      // "MIT"
-console.log(pkg.repository)    // "https://github.com/lodash/lodash"
+console.log(pkg.name); // "lodash"
+console.log(pkg.latestVersion); // "4.17.23"
+console.log(pkg.licenses); // "MIT"
+console.log(pkg.repository); // "https://github.com/lodash/lodash"
 ```
 
 Works the same for any supported registry:
 
 ```ts
-await fetchPackageFromPURL('pkg:cargo/serde')
-await fetchPackageFromPURL('pkg:pypi/flask')
-await fetchPackageFromPURL('pkg:gem/rails')
-await fetchPackageFromPURL('pkg:composer/laravel/framework')
-await fetchPackageFromPURL('pkg:alpm/arch/pacman')
+await fetchPackageFromPURL("pkg:cargo/serde");
+await fetchPackageFromPURL("pkg:pypi/flask");
+await fetchPackageFromPURL("pkg:gem/rails");
+await fetchPackageFromPURL("pkg:composer/laravel/framework");
+await fetchPackageFromPURL("pkg:alpm/arch/pacman");
 ```
 
 ### CLI
@@ -81,14 +81,14 @@ Add `--json` for machine-readable output, `--no-cache` to skip the cache.
 `regxa/ai` exports a ready-made tool for AI SDK apps:
 
 ```ts
-import { generateText } from 'ai'
-import { packageTool } from 'regxa/ai'
+import { generateText } from "ai";
+import { packageTool } from "regxa/ai";
 
 const { text } = await generateText({
   model: yourModel,
   tools: { packageRegistry: packageTool },
-  prompt: 'Show me the latest metadata for pkg:npm/lodash and then list its maintainers.',
-})
+  prompt: "Show me the latest metadata for pkg:npm/lodash and then list its maintainers.",
+});
 ```
 
 The tool supports these operations through one input schema:
@@ -103,14 +103,14 @@ The tool supports these operations through one input schema:
 
 ## Registries
 
-| Ecosystem | PURL type | Registry |
-|-----------|-----------|----------|
-| npm | `pkg:npm/...` | registry.npmjs.org |
-| Cargo | `pkg:cargo/...` | crates.io |
-| PyPI | `pkg:pypi/...` | pypi.org |
-| RubyGems | `pkg:gem/...` | rubygems.org |
-| Packagist | `pkg:composer/...` | packagist.org |
-| Arch Linux | `pkg:alpm/...` | archlinux.org, aur.archlinux.org |
+| Ecosystem  | PURL type          | Registry                         |
+| ---------- | ------------------ | -------------------------------- |
+| npm        | `pkg:npm/...`      | registry.npmjs.org               |
+| Cargo      | `pkg:cargo/...`    | crates.io                        |
+| PyPI       | `pkg:pypi/...`     | pypi.org                         |
+| RubyGems   | `pkg:gem/...`      | rubygems.org                     |
+| Packagist  | `pkg:composer/...` | packagist.org                    |
+| Arch Linux | `pkg:alpm/...`     | archlinux.org, aur.archlinux.org |
 
 Scoped packages work as expected: `pkg:npm/%40vue/core` or `npm/@vue/core` in the CLI.
 
@@ -121,20 +121,22 @@ Arch Linux packages use a namespace: `pkg:alpm/arch/pacman` (or just `pkg:alpm/p
 ### PURL helpers
 
 ```ts
-import { fetchPackageFromPURL, fetchVersionsFromPURL, fetchDependenciesFromPURL, fetchMaintainersFromPURL, bulkFetchPackages } from 'regxa'
+import {
+  fetchPackageFromPURL,
+  fetchVersionsFromPURL,
+  fetchDependenciesFromPURL,
+  fetchMaintainersFromPURL,
+  bulkFetchPackages,
+} from "regxa";
 
 // Single lookups
-const pkg = await fetchPackageFromPURL('pkg:npm/lodash')
-const versions = await fetchVersionsFromPURL('pkg:cargo/serde')
-const deps = await fetchDependenciesFromPURL('pkg:pypi/flask@3.1.1')
-const maintainers = await fetchMaintainersFromPURL('pkg:gem/rails')
+const pkg = await fetchPackageFromPURL("pkg:npm/lodash");
+const versions = await fetchVersionsFromPURL("pkg:cargo/serde");
+const deps = await fetchDependenciesFromPURL("pkg:pypi/flask@3.1.1");
+const maintainers = await fetchMaintainersFromPURL("pkg:gem/rails");
 
 // Bulk - fetches up to 15 packages concurrently
-const packages = await bulkFetchPackages([
-  'pkg:npm/lodash',
-  'pkg:cargo/serde',
-  'pkg:pypi/flask',
-])
+const packages = await bulkFetchPackages(["pkg:npm/lodash", "pkg:cargo/serde", "pkg:pypi/flask"]);
 ```
 
 ### Direct registry access
@@ -142,13 +144,13 @@ const packages = await bulkFetchPackages([
 For more control, create a registry instance directly:
 
 ```ts
-import { create } from 'regxa'
-import 'regxa/registries' // registers all built-in ecosystems
+import { create } from "regxa";
+import "regxa/registries"; // registers all built-in ecosystems
 
-const npm = create('npm')
-const pkg = await npm.fetchPackage('lodash')
-const versions = await npm.fetchVersions('lodash')
-const deps = await npm.fetchDependencies('lodash', '4.17.21')
+const npm = create("npm");
+const pkg = await npm.fetchPackage("lodash");
+const versions = await npm.fetchVersions("lodash");
+const deps = await npm.fetchDependencies("lodash", "4.17.21");
 ```
 
 ### Cached registry
@@ -156,16 +158,16 @@ const deps = await npm.fetchDependencies('lodash', '4.17.21')
 Wrap any registry with caching:
 
 ```ts
-import { createCached } from 'regxa'
-import 'regxa/registries'
+import { createCached } from "regxa";
+import "regxa/registries";
 
-const npm = createCached('npm')
+const npm = createCached("npm");
 
 // First call hits the network and writes to cache
-const pkg = await npm.fetchPackage('lodash')
+const pkg = await npm.fetchPackage("lodash");
 
 // Second call reads from cache (if TTL hasn't expired)
-const same = await npm.fetchPackage('lodash')
+const same = await npm.fetchPackage("lodash");
 ```
 
 By default, regxa uses filesystem storage and follows platform cache conventions: `~/.cache/regxa` on Linux (XDG), `~/Library/Caches/regxa` on macOS, `%LOCALAPPDATA%\regxa\cache` on Windows. Override with `REGXA_CACHE_DIR` env var.
@@ -173,37 +175,39 @@ By default, regxa uses filesystem storage and follows platform cache conventions
 For edge/serverless runtimes, configure a custom unstorage driver (example: Cloudflare KV binding):
 
 ```ts
-import { configureStorage, createCached } from 'regxa'
-import { createStorage } from 'unstorage'
-import cloudflareKVBindingDriver from 'unstorage/drivers/cloudflare-kv-binding'
-import 'regxa/registries'
+import { configureStorage, createCached } from "regxa";
+import { createStorage } from "unstorage";
+import cloudflareKVBindingDriver from "unstorage/drivers/cloudflare-kv-binding";
+import "regxa/registries";
 
-configureStorage(createStorage({
-  driver: cloudflareKVBindingDriver({ binding: 'REGXA_CACHE' }),
-}))
+configureStorage(
+  createStorage({
+    driver: cloudflareKVBindingDriver({ binding: "REGXA_CACHE" }),
+  }),
+);
 
-const npm = createCached('npm')
-const pkg = await npm.fetchPackage('lodash')
+const npm = createCached("npm");
+const pkg = await npm.fetchPackage("lodash");
 ```
 
 ### PURL parsing
 
 ```ts
-import { parsePURL, buildPURL, fullName } from 'regxa'
+import { parsePURL, buildPURL, fullName } from "regxa";
 
-const parsed = parsePURL('pkg:npm/%40vue/core@3.5.0')
+const parsed = parsePURL("pkg:npm/%40vue/core@3.5.0");
 // { type: 'npm', namespace: '@vue', name: 'core', version: '3.5.0', qualifiers: {}, subpath: '' }
 
-fullName(parsed) // "@vue/core"
+fullName(parsed); // "@vue/core"
 
-buildPURL({ type: 'cargo', name: 'serde', version: '1.0.0' })
+buildPURL({ type: "cargo", name: "serde", version: "1.0.0" });
 // "pkg:cargo/serde@1.0.0"
 ```
 
 ### Types
 
 ```ts
-import type { Package, Version, Dependency, Maintainer, Registry, ParsedPURL } from 'regxa'
+import type { Package, Version, Dependency, Maintainer, Registry, ParsedPURL } from "regxa";
 ```
 
 ## CLI
@@ -212,34 +216,34 @@ import type { Package, Version, Dependency, Maintainer, Registry, ParsedPURL } f
 regxa <command> [options]
 ```
 
-| Command | Description |
-|---------|-------------|
-| `regxa info <purl>` | Package metadata (name, license, repo, latest version) |
-| `regxa versions <purl>` | List all published versions |
-| `regxa deps <purl>` | Dependencies for a specific version |
-| `regxa maintainers <purl>` | Package maintainers / authors |
-| `regxa cache status` | Show cache stats (entries, freshness) |
-| `regxa cache path` | Print cache directory path |
-| `regxa cache clear` | Remove all cached data |
-| `regxa cache prune` | Remove stale entries |
+| Command                    | Description                                            |
+| -------------------------- | ------------------------------------------------------ |
+| `regxa info <purl>`        | Package metadata (name, license, repo, latest version) |
+| `regxa versions <purl>`    | List all published versions                            |
+| `regxa deps <purl>`        | Dependencies for a specific version                    |
+| `regxa maintainers <purl>` | Package maintainers / authors                          |
+| `regxa cache status`       | Show cache stats (entries, freshness)                  |
+| `regxa cache path`         | Print cache directory path                             |
+| `regxa cache clear`        | Remove all cached data                                 |
+| `regxa cache prune`        | Remove stale entries                                   |
 
 ### Options
 
-| Flag | Description |
-|------|-------------|
-| `--json` | Output as JSON |
+| Flag         | Description                              |
+| ------------ | ---------------------------------------- |
+| `--json`     | Output as JSON                           |
 | `--no-cache` | Bypass cache, always fetch from registry |
 
 ## Caching
 
 regxa stores fetched data and freshness metadata in unstorage. Default TTLs:
 
-| Data type | TTL |
-|-----------|-----|
-| Package metadata | 1 hour |
-| Version list | 30 minutes |
-| Dependencies | 24 hours |
-| Maintainers | 24 hours |
+| Data type        | TTL        |
+| ---------------- | ---------- |
+| Package metadata | 1 hour     |
+| Version list     | 30 minutes |
+| Dependencies     | 24 hours   |
+| Maintainers      | 24 hours   |
 
 Each cached entry has a sha256 integrity hash. If the stored data doesn't match the hash, regxa refetches automatically.
 
@@ -249,41 +253,41 @@ Every registry returns the same normalized types:
 
 ```ts
 interface Package {
-  name: string
-  description: string
-  homepage: string
-  documentation: string  // docs URL (docs.rs, readthedocs, rubydoc, etc.)
-  repository: string
-  licenses: string       // SPDX-normalized
-  keywords: string[]
-  namespace: string      // e.g. "@vue" for npm scoped packages
-  latestVersion: string
-  metadata: Record<string, unknown>
+  name: string;
+  description: string;
+  homepage: string;
+  documentation: string; // docs URL (docs.rs, readthedocs, rubydoc, etc.)
+  repository: string;
+  licenses: string; // SPDX-normalized
+  keywords: string[];
+  namespace: string; // e.g. "@vue" for npm scoped packages
+  latestVersion: string;
+  metadata: Record<string, unknown>;
 }
 
 interface Version {
-  number: string
-  publishedAt: Date | null
-  licenses: string
-  integrity: string
-  status: '' | 'yanked' | 'deprecated' | 'retracted'
-  metadata: Record<string, unknown>
+  number: string;
+  publishedAt: Date | null;
+  licenses: string;
+  integrity: string;
+  status: "" | "yanked" | "deprecated" | "retracted";
+  metadata: Record<string, unknown>;
 }
 
 interface Dependency {
-  name: string
-  requirements: string   // version constraint
-  scope: 'runtime' | 'development' | 'test' | 'build' | 'optional'
-  optional: boolean
+  name: string;
+  requirements: string; // version constraint
+  scope: "runtime" | "development" | "test" | "build" | "optional";
+  optional: boolean;
 }
 
 interface Maintainer {
-  uuid: string
-  login: string
-  name: string
-  email: string
-  url: string
-  role: string
+  uuid: string;
+  login: string;
+  name: string;
+  email: string;
+  url: string;
+  role: string;
 }
 ```
 
