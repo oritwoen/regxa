@@ -28,7 +28,12 @@
     "dist"
   ],
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/index.ts",
+    "./src/registries/index.ts",
+    "./dist/index.mjs",
+    "./dist/registries/index.mjs"
+  ],
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {

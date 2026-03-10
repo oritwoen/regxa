@@ -178,3 +178,15 @@ describe("fetchDependenciesFromPURL", () => {
     await expect(fetchDependenciesFromPURL(purl)).rejects.toThrow(purl);
   });
 });
+
+describe("root entrypoint registry initialization", () => {
+  it("registers built-in ecosystems via side effects", async () => {
+    vi.resetModules();
+
+    const { has } = await import("../../src/core/registry.ts");
+    expect(has("npm")).toBe(false);
+
+    await import("../../src/index.ts");
+    expect(has("npm")).toBe(true);
+  });
+});
