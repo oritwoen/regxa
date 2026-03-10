@@ -145,7 +145,6 @@ For more control, create a registry instance directly:
 
 ```ts
 import { create } from "regxa";
-import "regxa/registries"; // registers all built-in ecosystems
 
 const npm = create("npm");
 const pkg = await npm.fetchPackage("lodash");
@@ -159,7 +158,6 @@ Wrap any registry with caching:
 
 ```ts
 import { createCached } from "regxa";
-import "regxa/registries";
 
 const npm = createCached("npm");
 

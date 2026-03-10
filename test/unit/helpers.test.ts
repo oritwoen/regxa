@@ -178,3 +178,20 @@ describe("fetchDependenciesFromPURL", () => {
     await expect(fetchDependenciesFromPURL(purl)).rejects.toThrow(purl);
   });
 });
+
+describe("root entrypoint registry initialization", () => {
+  it("registers built-in ecosystems via side effects", async () => {
+    vi.resetModules();
+    const ecosystems = ["npm", "cargo", "pypi", "gem", "composer", "alpm"] as const;
+
+    const { has } = await import("../../src/core/registry.ts");
+    for (const ecosystem of ecosystems) {
+      expect(has(ecosystem)).toBe(false);
+    }
+
+    await import("../../src/index.ts");
+    for (const ecosystem of ecosystems) {
+      expect(has(ecosystem)).toBe(true);
+    }
+  });
+});

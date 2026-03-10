@@ -1,3 +1,5 @@
+import "./registries/index.ts";
+
 // Core API
 export { Client, defaultClient } from "./core/client.ts";
 export { register, create, ecosystems, has } from "./core/registry.ts";
