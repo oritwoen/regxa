@@ -22,10 +22,11 @@ describe("parseRetryAfter", () => {
   });
 
   it("parses HTTP-date in the future", () => {
-    const future = new Date(Date.now() + 90_000);
-    const result = parseRetryAfter(future.toUTCString());
-    expect(result).toBeGreaterThan(0);
-    expect(result).toBeLessThanOrEqual(90);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2025-01-01T00:00:00Z"));
+    const result = parseRetryAfter("Wed, 01 Jan 2025 00:01:30 GMT");
+    expect(result).toBe(90);
+    vi.useRealTimers();
   });
 
   it("returns 0 for HTTP-date in the past", () => {
@@ -38,6 +39,10 @@ describe("parseRetryAfter", () => {
 
   it("handles large numeric values", () => {
     expect(parseRetryAfter("3600")).toBe(3600);
+  });
+
+  it("treats leading zeros as decimal", () => {
+    expect(parseRetryAfter("0120")).toBe(120);
   });
 
   it("rejects partial numeric like '120s'", () => {
