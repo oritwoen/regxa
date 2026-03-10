@@ -1,9 +1,9 @@
 // Core
-export { Client, defaultClient } from './client.ts'
-export { register, create, ecosystems, has } from './registry.ts'
-export { parsePURL, fullName, createFromPURL, buildPURL } from './purl.ts'
-export { normalizeLicense, combineLicenses } from './license.ts'
-export { normalizeRepositoryURL } from './repository.ts'
+export { Client, defaultClient } from "./client.ts";
+export { register, create, ecosystems, has } from "./registry.ts";
+export { parsePURL, fullName, createFromPURL, buildPURL } from "./purl.ts";
+export { normalizeLicense, combineLicenses } from "./license.ts";
+export { normalizeRepositoryURL } from "./repository.ts";
 
 // Errors
 export {
@@ -13,7 +13,7 @@ export {
   RateLimitError,
   UnknownEcosystemError,
   InvalidPURLError,
-} from './errors.ts'
+} from "./errors.ts";
 
 // Types
 export type {
@@ -29,4 +29,4 @@ export type {
   ClientOptions,
   RateLimiter,
   ParsedPURL,
-} from './types.ts'
+} from "./types.ts";

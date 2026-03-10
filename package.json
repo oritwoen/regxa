@@ -2,16 +2,35 @@
   "name": "regxa",
   "version": "0.1.4",
   "description": "Universal package registry client. Query npm, PyPI, crates.io, RubyGems, Packagist and more with a single PURL-native API.",
-  "type": "module",
+  "keywords": [
+    "crates",
+    "metadata",
+    "npm",
+    "package-registry",
+    "packagist",
+    "purl",
+    "pypi",
+    "rubygems",
+    "universal"
+  ],
+  "homepage": "https://github.com/oritwoen/regxa#readme",
+  "bugs": "https://github.com/oritwoen/regxa/issues",
   "license": "MIT",
-  "sideEffects": false,
   "author": "oritwoen (https://github.com/oritwoen)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/oritwoen/regxa.git"
   },
-  "homepage": "https://github.com/oritwoen/regxa#readme",
-  "bugs": "https://github.com/oritwoen/regxa/issues",
+  "bin": {
+    "regxa": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -30,52 +49,33 @@
       "import": "./dist/cache/index.mjs"
     }
   },
-  "main": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
-  "bin": {
-    "regxa": "./dist/cli.mjs"
-  },
-  "files": [
-    "dist"
-  ],
-  "engines": {
-    "node": ">=22.6.0"
-  },
-  "packageManager": "pnpm@10.30.3",
   "scripts": {
     "build": "obuild",
     "dev:prepare": "obuild --stub",
+    "fmt": "oxlint . --fix && oxfmt .",
+    "lint": "oxlint . && oxfmt --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
     "prepack": "pnpm run build",
     "release": "pnpm test:run && pnpm build && changelogen --release --push"
   },
-  "keywords": [
-    "package-registry",
-    "purl",
-    "npm",
-    "pypi",
-    "crates",
-    "rubygems",
-    "packagist",
-    "universal",
-    "metadata"
-  ],
-  "devDependencies": {
-    "@types/node": "^25.3.0",
-    "ai": "^6.0.116",
-    "changelogen": "^0.6.2",
-    "obuild": "^0.4.31",
-    "typescript": "^5.8.3",
-    "vitest": "^4.0.0",
-    "zod": "^4.3.6"
-  },
   "dependencies": {
     "citty": "^0.2.1",
     "consola": "^3.4.2",
     "ofetch": "^1.5.1",
     "unstorage": "^1.17.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "ai": "^6.0.116",
+    "changelogen": "^0.6.2",
+    "obuild": "^0.4.31",
+    "oxfmt": "^0.36.0",
+    "oxlint": "^1.51.0",
+    "typescript": "^5.8.3",
+    "vitest": "^4.0.0",
+    "zod": "^4.3.6"
   },
   "peerDependencies": {
     "ai": "^6.0.116",
@@ -88,5 +88,9 @@
     "zod": {
       "optional": true
     }
-  }
+  },
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "packageManager": "pnpm@10.30.3"
 }
