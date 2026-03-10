@@ -444,6 +444,167 @@ describe("Registry Modules", () => {
       await expect(registry.fetchPackage("nonexistent-package-xyz")).rejects.toThrow(NotFoundError);
     });
 
+    it("should parse PEP 508 dependencies with version specs", async () => {
+      const client = new Client();
+      const mockResponse = {
+        info: {
+          name: "requests",
+          version: "2.31.0",
+          summary: "",
+          description: "",
+          license: "",
+          keywords: "",
+          author: "",
+          author_email: "",
+          project_urls: {},
+          requires_dist: [
+            "charset-normalizer (<4,>=2)",
+            "idna (<4,>=2.5)",
+            "urllib3 (<3,>=1.21.1)",
+            "certifi (>=2017.4.17)",
+          ],
+        },
+        releases: {},
+        urls: [],
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("pypi", undefined, client);
+      const deps = await registry.fetchDependencies("requests", "2.31.0");
+
+      expect(deps).toHaveLength(4);
+      expect(deps[0].name).toBe("charset-normalizer");
+      expect(deps[0].requirements).toBe("<4,>=2");
+      expect(deps[0].scope).toBe("runtime");
+      expect(deps[0].optional).toBe(false);
+      expect(deps[1].name).toBe("idna");
+      expect(deps[1].requirements).toBe("<4,>=2.5");
+    });
+
+    it("should not misclassify platform markers as test/dev scope", async () => {
+      const client = new Client();
+      const mockResponse = {
+        info: {
+          name: "example",
+          version: "1.0.0",
+          summary: "",
+          description: "",
+          license: "",
+          keywords: "",
+          author: "",
+          author_email: "",
+          project_urls: {},
+          requires_dist: [
+            'colorama ; sys_platform == "win32"',
+            'importlib-metadata ; python_version < "3.8"',
+            'extra-pkg ; extra == "latest"',
+          ],
+        },
+        releases: {},
+        urls: [],
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("pypi", undefined, client);
+      const deps = await registry.fetchDependencies("example", "1.0.0");
+
+      expect(deps).toHaveLength(3);
+
+      expect(deps[0].name).toBe("colorama");
+      expect(deps[0].scope).toBe("runtime");
+      expect(deps[0].optional).toBe(false);
+
+      expect(deps[1].name).toBe("importlib-metadata");
+      expect(deps[1].scope).toBe("runtime");
+      expect(deps[1].optional).toBe(false);
+
+      expect(deps[2].name).toBe("extra-pkg");
+      expect(deps[2].scope).toBe("runtime");
+      expect(deps[2].optional).toBe(true);
+    });
+
+    it("should classify extra markers into correct scopes", async () => {
+      const client = new Client();
+      const mockResponse = {
+        info: {
+          name: "example",
+          version: "1.0.0",
+          summary: "",
+          description: "",
+          license: "",
+          keywords: "",
+          author: "",
+          author_email: "",
+          project_urls: {},
+          requires_dist: [
+            'pytest (>=3.0) ; extra == "testing"',
+            'sphinx ; extra == "docs"',
+            'black ; extra == "dev"',
+            'mypy ; extra == "development"',
+          ],
+        },
+        releases: {},
+        urls: [],
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("pypi", undefined, client);
+      const deps = await registry.fetchDependencies("example", "1.0.0");
+
+      expect(deps).toHaveLength(4);
+
+      expect(deps[0].name).toBe("pytest");
+      expect(deps[0].requirements).toBe(">=3.0");
+      expect(deps[0].scope).toBe("test");
+      expect(deps[0].optional).toBe(true);
+
+      expect(deps[1].name).toBe("sphinx");
+      expect(deps[1].scope).toBe("runtime");
+      expect(deps[1].optional).toBe(true);
+
+      expect(deps[2].name).toBe("black");
+      expect(deps[2].scope).toBe("development");
+      expect(deps[2].optional).toBe(true);
+
+      expect(deps[3].name).toBe("mypy");
+      expect(deps[3].scope).toBe("development");
+      expect(deps[3].optional).toBe(true);
+    });
+
+    it("should handle dependencies with extras in brackets", async () => {
+      const client = new Client();
+      const mockResponse = {
+        info: {
+          name: "example",
+          version: "1.0.0",
+          summary: "",
+          description: "",
+          license: "",
+          keywords: "",
+          author: "",
+          author_email: "",
+          project_urls: {},
+          requires_dist: ["requests[security] (>=2.25.0)", "urllib3"],
+        },
+        releases: {},
+        urls: [],
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("pypi", undefined, client);
+      const deps = await registry.fetchDependencies("example", "1.0.0");
+
+      expect(deps).toHaveLength(2);
+      expect(deps[0].name).toBe("requests");
+      expect(deps[0].requirements).toBe(">=2.25.0");
+      expect(deps[1].name).toBe("urllib3");
+      expect(deps[1].requirements).toBe("");
+    });
+
     it("should fetch pypi versions with yanked status", async () => {
       const client = new Client();
       const mockResponse = {
