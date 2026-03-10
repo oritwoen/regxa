@@ -252,34 +252,39 @@ class PyPIRegistry implements Registry {
       .filter(Boolean);
   }
 
-  /** Parse PEP 508 dependency string. */
+  /** Parse PEP 508 dependency string into a normalized Dependency. */
   private parsePEP508(depStr: string): Dependency | null {
-    // Basic parsing: "name (version_spec) ; extras"
-    // For now, extract just the name and requirements
-    const parts = depStr.split(";");
-    const mainPart = parts[0]!.trim();
+    // PEP 508 format: name [extras] (version_spec) ; markers
+    const semiIdx = depStr.indexOf(";");
+    const mainPart = semiIdx === -1 ? depStr.trim() : depStr.slice(0, semiIdx).trim();
+    const markerStr = semiIdx === -1 ? "" : depStr.slice(semiIdx + 1).trim();
 
-    // Extract name and version spec
-    const match = mainPart.match(/^([a-zA-Z0-9._-]+)\s*(.*)$/);
+    // Extract name, skip [extras] bracket group, capture version spec
+    const match = mainPart.match(/^([a-zA-Z0-9._-]+)\s*(?:\[.*?\])?\s*(.*)$/);
     if (!match) return null;
 
     const depName = match[1]!;
-    const versionSpec = match[2]!.trim();
+    let versionSpec = match[2]!.trim();
 
-    // Determine scope based on extras (simplified)
+    // Strip surrounding parentheses: "(<4,>=2)" -> "<4,>=2"
+    if (versionSpec.startsWith("(") && versionSpec.endsWith(")")) {
+      versionSpec = versionSpec.slice(1, -1).trim();
+    }
+
+    // Only `extra == "..."` markers affect scope. Platform markers don't.
     let scope: "runtime" | "development" | "test" | "build" | "optional" = "runtime";
     let optional = false;
 
-    if (parts.length > 1) {
-      const extras = parts[1]!.toLowerCase();
-      if (extras.includes("extra")) {
+    if (markerStr) {
+      const extraMatch = markerStr.match(/extra\s*==\s*["']([^"']+)["']/);
+      if (extraMatch) {
         optional = true;
-      }
-      if (extras.includes("dev")) {
-        scope = "development";
-      }
-      if (extras.includes("test")) {
-        scope = "test";
+        const extraName = extraMatch[1]!.toLowerCase();
+        if (/^dev(elop(ment)?)?$/.test(extraName)) {
+          scope = "development";
+        } else if (/^test(s|ing)?$/.test(extraName)) {
+          scope = "test";
+        }
       }
     }
 
