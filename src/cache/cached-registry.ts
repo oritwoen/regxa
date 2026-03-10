@@ -6,7 +6,7 @@ import type {
   URLBuilder,
   Version,
 } from "../core/types.ts";
-import { getEcosystemStorage, getStorage, computeIntegrity } from "./storage.ts";
+import { getStorage, computeIntegrity } from "./storage.ts";
 import {
   readLockfile,
   writeLockfile,
@@ -32,7 +32,7 @@ export class CachedRegistry implements Registry {
 
   constructor(inner: Registry, storage?: Storage) {
     this.inner = inner;
-    this.storage = storage ?? getEcosystemStorage(inner.ecosystem());
+    this.storage = storage ?? getStorage();
     this.lockfileStorage = storage ?? getStorage();
   }
 
@@ -91,7 +91,7 @@ export class CachedRegistry implements Registry {
   ): Promise<T> {
     const eco = this.inner.ecosystem();
     const key = cacheKey(eco, name, type, version);
-    const storageKey = version ? `${name}:${type}:${version}` : `${name}:${type}`;
+    const storageKey = key;
 
     // 1. Check lockfile
     const lockfile = await readLockfile(this.lockfileStorage);

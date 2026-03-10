@@ -579,6 +579,56 @@ describe("CachedRegistry", () => {
     });
   });
 
+  describe("ecosystem isolation", () => {
+    it("does not collide when two ecosystems cache the same package name", async () => {
+      const npmInner = createMockRegistry("npm", {
+        fetchPackage: async () => ({
+          name: "json",
+          description: "npm json package",
+          homepage: "",
+          documentation: "",
+          repository: "",
+          licenses: "MIT",
+          keywords: [],
+          namespace: "",
+          latestVersion: "1.0.0",
+          metadata: {},
+        }),
+      });
+      const cargoInner = createMockRegistry("cargo", {
+        fetchPackage: async () => ({
+          name: "json",
+          description: "cargo json crate",
+          homepage: "",
+          documentation: "",
+          repository: "",
+          licenses: "Apache-2.0",
+          keywords: [],
+          namespace: "",
+          latestVersion: "0.12.4",
+          metadata: {},
+        }),
+      });
+
+      const npmCached = new CachedRegistry(npmInner);
+      const cargoCached = new CachedRegistry(cargoInner);
+
+      const npmPkg = await npmCached.fetchPackage("json");
+      const cargoPkg = await cargoCached.fetchPackage("json");
+
+      expect(npmPkg.description).toBe("npm json package");
+      expect(npmPkg.licenses).toBe("MIT");
+      expect(cargoPkg.description).toBe("cargo json crate");
+      expect(cargoPkg.licenses).toBe("Apache-2.0");
+
+      const npmAgain = await npmCached.fetchPackage("json");
+      const cargoAgain = await cargoCached.fetchPackage("json");
+
+      expect(npmAgain.description).toBe("npm json package");
+      expect(cargoAgain.description).toBe("cargo json crate");
+    });
+  });
+
   describe("error handling", () => {
     it("propagates fetch errors", async () => {
       const inner = createMockRegistry("npm", {
