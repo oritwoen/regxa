@@ -156,6 +156,10 @@ describe("purl", () => {
     it("throws InvalidPURLError for malformed percent-encoding in qualifiers", () => {
       expect(() => parsePURL("pkg:npm/lodash?key=val%ZZ")).toThrow(InvalidPURLError);
     });
+    it("throws InvalidPURLError for malformed percent-encoding in qualifier key", () => {
+      expect(() => parsePURL("pkg:npm/lodash?ke%ZZy=value")).toThrow(InvalidPURLError);
+    });
+    });
 
     it("throws InvalidPURLError for malformed percent-encoding in subpath", () => {
       expect(() => parsePURL("pkg:npm/lodash#path/%ZZ")).toThrow(InvalidPURLError);
