@@ -188,6 +188,85 @@ describe("Registry Modules", () => {
       expect(pkg.metadata.createdAt).toBe("2014-12-20T02:35:07Z");
     });
 
+    it("should use license from latest stable version, not newest version", async () => {
+      const client = new Client();
+      const mockResponse = {
+        crate: {
+          id: 1,
+          name: "example",
+          updated_at: "2024-02-01T10:00:00Z",
+          created_at: "2024-01-01T10:00:00Z",
+          downloads: 1000,
+          recent_downloads: 100,
+          max_version: "2.0.0-alpha.1",
+          max_stable_version: "1.0.0",
+          newest_version: "2.0.0-alpha.1",
+          description: "Example crate",
+          homepage: "",
+          documentation: "",
+          repository: "",
+          keywords: [],
+          categories: [],
+          badges: [],
+          links: {},
+        },
+        versions: [
+          {
+            id: 2,
+            num: "2.0.0-alpha.1",
+            dl_path: "/api/v1/crates/example/2.0.0-alpha.1/download",
+            readme_path: "/api/v1/crates/example/2.0.0-alpha.1/readme",
+            created_at: "2024-02-01T10:00:00Z",
+            updated_at: "2024-02-01T10:00:00Z",
+            downloads: 100,
+            features: {},
+            yanked: false,
+            license: "MIT",
+            links: {},
+            crate_size: 50000,
+            published_by: {
+              id: 1,
+              login: "author",
+              name: "Author",
+              avatar: "",
+              url: "",
+            },
+            checksum: "aaa111",
+          },
+          {
+            id: 1,
+            num: "1.0.0",
+            dl_path: "/api/v1/crates/example/1.0.0/download",
+            readme_path: "/api/v1/crates/example/1.0.0/readme",
+            created_at: "2024-01-01T10:00:00Z",
+            updated_at: "2024-01-01T10:00:00Z",
+            downloads: 900,
+            features: {},
+            yanked: false,
+            license: "MIT OR Apache-2.0",
+            links: {},
+            crate_size: 50000,
+            published_by: {
+              id: 1,
+              login: "author",
+              name: "Author",
+              avatar: "",
+              url: "",
+            },
+            checksum: "bbb222",
+          },
+        ],
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("cargo", undefined, client);
+      const pkg = await registry.fetchPackage("example");
+
+      expect(pkg.latestVersion).toBe("1.0.0");
+      expect(pkg.licenses).toBe("MIT OR Apache-2.0");
+    });
+
     it("should throw NotFoundError for missing cargo crate", async () => {
       const client = new Client();
 

@@ -122,6 +122,7 @@ class CargoRegistry implements Registry {
       const data = await this.client.getJSON<CratesPackageResponse>(url, signal);
       const crateData = data.crate;
       const latestVersion = crateData.max_stable_version || crateData.max_version;
+      const latestVersionData = data.versions.find((v) => v.num === latestVersion);
 
       return {
         name: crateData.name,
@@ -129,7 +130,9 @@ class CargoRegistry implements Registry {
         homepage: crateData.homepage || "",
         documentation: crateData.documentation || "",
         repository: normalizeRepositoryURL(crateData.repository || ""),
-        licenses: normalizeLicense(data.versions[0]?.license || ""),
+        licenses: normalizeLicense(
+          latestVersionData ? latestVersionData.license : (data.versions[0]?.license ?? ""),
+        ),
         keywords: crateData.keywords,
         namespace: "",
         latestVersion,
