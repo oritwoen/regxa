@@ -8,6 +8,30 @@ const DEFAULT_BASE_DELAY = 50;
 const DEFAULT_TIMEOUT = 30_000;
 const DEFAULT_USER_AGENT = "regxa/0.1.0";
 
+/**
+ * Parse a `Retry-After` header into seconds.
+ *
+ * Handles two formats (RFC 7231 §7.1.3):
+ * - **Numeric**: `"120"` → 120
+ * - **HTTP-date**: `"Wed, 21 Oct 2025 07:28:00 GMT"` → seconds until that time
+ *
+ * Returns 60 when the header is absent, empty, or unparseable.
+ */
+export function parseRetryAfter(header: string | null | undefined): number {
+  if (!header) return 60;
+
+  const numeric = Number.parseInt(header, 10);
+  if (!Number.isNaN(numeric) && numeric >= 0) return numeric;
+
+  const timestamp = Date.parse(header);
+  if (!Number.isNaN(timestamp)) {
+    const seconds = Math.ceil((timestamp - Date.now()) / 1000);
+    return seconds > 0 ? seconds : 60;
+  }
+
+  return 60;
+}
+
 /** HTTP client with retry, backoff, rate limiting, and timeout. */
 export class Client {
   readonly maxRetries: number;
@@ -56,11 +80,7 @@ export class Client {
     } catch (error) {
       if (error instanceof FetchError) {
         if (error.statusCode === 429) {
-          const retryAfter = Number.parseInt(
-            error.response?.headers.get("Retry-After") ?? "60",
-            10,
-          );
-          throw new RateLimitError(retryAfter);
+          throw new RateLimitError(parseRetryAfter(error.response?.headers.get("Retry-After")));
         }
 
         const body = typeof error.data === "string" ? error.data : JSON.stringify(error.data ?? "");
