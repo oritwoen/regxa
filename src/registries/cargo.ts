@@ -130,7 +130,9 @@ class CargoRegistry implements Registry {
         homepage: crateData.homepage || "",
         documentation: crateData.documentation || "",
         repository: normalizeRepositoryURL(crateData.repository || ""),
-        licenses: normalizeLicense(latestVersionData?.license || data.versions[0]?.license || ""),
+        licenses: normalizeLicense(
+          latestVersionData ? latestVersionData.license : (data.versions[0]?.license ?? ""),
+        ),
         keywords: crateData.keywords,
         namespace: "",
         latestVersion,
