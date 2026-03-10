@@ -3,6 +3,15 @@ import type { Client } from "./client.ts";
 import { create } from "./registry.ts";
 import { InvalidPURLError } from "./errors.ts";
 
+/** Decode a percent-encoded PURL component, throwing InvalidPURLError on malformed sequences. */
+function decodePURLComponent(purlStr: string, value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    throw new InvalidPURLError(purlStr, "malformed percent-encoding");
+  }
+}
+
 /**
  * Parse a PURL string into its components.
  *
@@ -24,7 +33,7 @@ export function parsePURL(purlStr: string): ParsedPURL {
     subpath = remainder
       .slice(hashIdx + 1)
       .split("/")
-      .map((s) => decodeURIComponent(s))
+      .map((s) => decodePURLComponent(purlStr, s))
       .join("/");
     remainder = remainder.slice(0, hashIdx);
   }
@@ -38,7 +47,8 @@ export function parsePURL(purlStr: string): ParsedPURL {
     for (const pair of queryStr.split("&")) {
       const eqIdx = pair.indexOf("=");
       if (eqIdx !== -1) {
-        qualifiers[decodeURIComponent(pair.slice(0, eqIdx))] = decodeURIComponent(
+        qualifiers[decodePURLComponent(purlStr, pair.slice(0, eqIdx))] = decodePURLComponent(
+          purlStr,
           pair.slice(eqIdx + 1),
         );
       }
@@ -49,7 +59,7 @@ export function parsePURL(purlStr: string): ParsedPURL {
   let version = "";
   const atIdx = remainder.indexOf("@");
   if (atIdx !== -1) {
-    version = decodeURIComponent(remainder.slice(atIdx + 1));
+    version = decodePURLComponent(purlStr, remainder.slice(atIdx + 1));
     remainder = remainder.slice(0, atIdx);
   }
 
@@ -78,11 +88,11 @@ export function parsePURL(purlStr: string): ParsedPURL {
     namespace = rest
       .slice(0, lastSlashIdx)
       .split("/")
-      .map((s) => decodeURIComponent(s))
+      .map((s) => decodePURLComponent(purlStr, s))
       .join("/");
-    name = decodeURIComponent(rest.slice(lastSlashIdx + 1));
+    name = decodePURLComponent(purlStr, rest.slice(lastSlashIdx + 1));
   } else {
-    name = decodeURIComponent(rest);
+    name = decodePURLComponent(purlStr, rest);
   }
 
   // Ecosystem-specific normalization per PURL spec

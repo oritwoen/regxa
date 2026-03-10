@@ -135,6 +135,31 @@ describe("purl", () => {
       const result = parsePURL("pkg:NPM/lodash");
       expect(result.type).toBe("npm");
     });
+
+    it("throws InvalidPURLError for malformed percent-encoding in name", () => {
+      expect(() => parsePURL("pkg:npm/foo%ZZbar")).toThrow(InvalidPURLError);
+      expect(() => parsePURL("pkg:npm/foo%ZZbar")).toThrow("malformed percent-encoding");
+    });
+
+    it("throws InvalidPURLError for truncated percent-encoding", () => {
+      expect(() => parsePURL("pkg:npm/foo%")).toThrow(InvalidPURLError);
+    });
+
+    it("throws InvalidPURLError for malformed percent-encoding in version", () => {
+      expect(() => parsePURL("pkg:npm/lodash@1.0%GG")).toThrow(InvalidPURLError);
+    });
+
+    it("throws InvalidPURLError for malformed percent-encoding in namespace", () => {
+      expect(() => parsePURL("pkg:npm/%ZZ/core")).toThrow(InvalidPURLError);
+    });
+
+    it("throws InvalidPURLError for malformed percent-encoding in qualifiers", () => {
+      expect(() => parsePURL("pkg:npm/lodash?key=val%ZZ")).toThrow(InvalidPURLError);
+    });
+
+    it("throws InvalidPURLError for malformed percent-encoding in subpath", () => {
+      expect(() => parsePURL("pkg:npm/lodash#path/%ZZ")).toThrow(InvalidPURLError);
+    });
   });
 
   describe("fullName", () => {
