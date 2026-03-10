@@ -517,6 +517,54 @@ describe("Registry Modules", () => {
       expect(versions[2].number).toBe("7.0.2");
       expect(versions[2].status).toBe("");
     });
+
+    it("should fetch version-specific dependencies via v2 API", async () => {
+      const client = new Client();
+      const mockResponse = {
+        name: "rails",
+        version: "5.0.0",
+        description: "Ruby on Rails is a web-application framework",
+        licenses: ["MIT"],
+        dependencies: {
+          runtime: [
+            { name: "actioncable", requirements: "= 5.0.0" },
+            { name: "activesupport", requirements: "= 5.0.0" },
+          ],
+          development: [{ name: "bundler", requirements: ">= 1.15.0" }],
+        },
+      };
+
+      const spy = vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("gem", undefined, client);
+      const deps = await registry.fetchDependencies("rails", "5.0.0");
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringContaining("/api/v2/rubygems/rails/versions/5.0.0.json"),
+        undefined,
+      );
+
+      expect(deps).toHaveLength(3);
+      expect(deps[0].name).toBe("actioncable");
+      expect(deps[0].requirements).toBe("= 5.0.0");
+      expect(deps[0].scope).toBe("runtime");
+      expect(deps[1].name).toBe("activesupport");
+      expect(deps[1].scope).toBe("runtime");
+      expect(deps[2].name).toBe("bundler");
+      expect(deps[2].scope).toBe("development");
+    });
+
+    it("should throw NotFoundError for missing gem version", async () => {
+      const client = new Client();
+
+      vi.spyOn(client, "getJSON").mockRejectedValueOnce(
+        new HTTPError(404, "https://mock/not-found", "Not Found"),
+      );
+
+      const registry = create("gem", undefined, client);
+
+      await expect(registry.fetchDependencies("rails", "0.0.0")).rejects.toThrow(NotFoundError);
+    });
   });
 
   describe("packagist registry", () => {

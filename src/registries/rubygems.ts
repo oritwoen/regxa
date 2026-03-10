@@ -137,7 +137,7 @@ class RubyGemsRegistry implements Registry {
     version: string,
     signal?: AbortSignal,
   ): Promise<Dependency[]> {
-    const url = `${this.baseURL}/api/v1/gems/${name}.json`;
+    const url = `${this.baseURL}/api/v2/rubygems/${name}/versions/${version}.json`;
 
     try {
       const data = await this.client.getJSON<RubyGemsGemResponse>(url, signal);
