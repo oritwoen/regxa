@@ -28,8 +28,8 @@ describe("parseRetryAfter", () => {
     expect(result).toBeLessThanOrEqual(90);
   });
 
-  it("falls back to 60 for HTTP-date in the past", () => {
-    expect(parseRetryAfter("Wed, 21 Oct 2015 07:28:00 GMT")).toBe(60);
+  it("returns 0 for HTTP-date in the past", () => {
+    expect(parseRetryAfter("Wed, 21 Oct 2015 07:28:00 GMT")).toBe(0);
   });
 
   it("returns 60 for garbage input", () => {
@@ -38,5 +38,17 @@ describe("parseRetryAfter", () => {
 
   it("handles large numeric values", () => {
     expect(parseRetryAfter("3600")).toBe(3600);
+  });
+
+  it("rejects partial numeric like '120s'", () => {
+    expect(parseRetryAfter("120s")).toBe(60);
+  });
+
+  it("rejects decimal like '1.5'", () => {
+    expect(parseRetryAfter("1.5")).toBe(60);
+  });
+
+  it("returns 60 for whitespace-only", () => {
+    expect(parseRetryAfter("   ")).toBe(60);
   });
 });

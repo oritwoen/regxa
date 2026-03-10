@@ -19,14 +19,15 @@ const DEFAULT_USER_AGENT = "regxa/0.1.0";
  */
 export function parseRetryAfter(header: string | null | undefined): number {
   if (!header) return 60;
+  const trimmed = header.trim();
+  if (!trimmed) return 60;
 
-  const numeric = Number.parseInt(header, 10);
-  if (!Number.isNaN(numeric) && numeric >= 0) return numeric;
+  if (/^\d+$/.test(trimmed)) return Number(trimmed);
 
-  const timestamp = Date.parse(header);
+  const timestamp = /[a-z]/i.test(trimmed) ? Date.parse(trimmed) : NaN;
   if (!Number.isNaN(timestamp)) {
     const seconds = Math.ceil((timestamp - Date.now()) / 1000);
-    return seconds > 0 ? seconds : 60;
+    return Math.max(seconds, 0);
   }
 
   return 60;
