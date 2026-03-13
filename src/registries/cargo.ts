@@ -12,6 +12,7 @@ import { register } from "../core/registry.ts";
 import { HTTPError, NotFoundError } from "../core/errors.ts";
 import { normalizeLicense } from "../core/license.ts";
 import { normalizeRepositoryURL } from "../core/repository.ts";
+import { buildPURL } from "../core/purl.ts";
 
 /** Crates.io API response for a single crate. */
 interface CratesPackageResponse {
@@ -272,8 +273,7 @@ class CargoRegistry implements Registry {
           : `https://crates.io/crates/${name}`;
       },
       purl: (name: string, version?: string) => {
-        const versionSuffix = version ? `@${version}` : "";
-        return `pkg:cargo/${name}${versionSuffix}`;
+        return buildPURL({ type: "cargo", name, version });
       },
     };
   }

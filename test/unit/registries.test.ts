@@ -118,6 +118,14 @@ describe("Registry Modules", () => {
       expect(versions[1].number).toBe("4.17.21");
       expect(versions[1].status).toBe("");
     });
+
+    it("should produce valid PURL for scoped packages", () => {
+      const registry = create("npm");
+      const urls = registry.urls();
+      expect(urls.purl("@babel/core", "7.0.0")).toBe("pkg:npm/%40babel/core@7.0.0");
+      expect(urls.purl("@babel/core")).toBe("pkg:npm/%40babel/core");
+      expect(urls.purl("lodash", "4.17.21")).toBe("pkg:npm/lodash@4.17.21");
+    });
   });
 
   describe("cargo registry", () => {

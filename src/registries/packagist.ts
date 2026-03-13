@@ -12,6 +12,7 @@ import { register } from "../core/registry.ts";
 import { HTTPError, NotFoundError, InvalidPURLError } from "../core/errors.ts";
 import { combineLicenses } from "../core/license.ts";
 import { normalizeRepositoryURL } from "../core/repository.ts";
+import { buildPURL } from "../core/purl.ts";
 
 /** Packagist API response for a single package. */
 interface PackagistPackageResponse {
@@ -248,8 +249,8 @@ class PackagistRegistry implements Registry {
         return `https://packagist.org/packages/${vendor}/${pkg}`;
       },
       purl: (name: string, version?: string) => {
-        const versionSuffix = version ? `@${version}` : "";
-        return `pkg:composer/${name}${versionSuffix}`;
+        const [vendor, pkg] = this.parseName(name);
+        return buildPURL({ type: "composer", namespace: vendor, name: pkg, version });
       },
     };
   }

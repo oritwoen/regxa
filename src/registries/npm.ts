@@ -12,6 +12,7 @@ import { register } from "../core/registry.ts";
 import { HTTPError, NotFoundError } from "../core/errors.ts";
 import { normalizeLicense } from "../core/license.ts";
 import { normalizeRepositoryURL } from "../core/repository.ts";
+import { buildPURL } from "../core/purl.ts";
 
 /** npm registry API response for a single package. */
 interface NpmPackageResponse {
@@ -329,8 +330,9 @@ class NpmRegistry implements Registry {
         return `https://cdn.jsdelivr.net/npm/${name}${ver}/README.md`;
       },
       purl: (name: string, version?: string) => {
-        const versionSuffix = version ? `@${version}` : "";
-        return `pkg:npm/${name}${versionSuffix}`;
+        const namespace = this.extractNamespace(name);
+        const bareName = namespace ? name.slice(namespace.length + 1) : name;
+        return buildPURL({ type: "npm", namespace, name: bareName, version });
       },
     };
   }

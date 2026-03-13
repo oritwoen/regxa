@@ -12,6 +12,7 @@ import { register } from "../core/registry.ts";
 import { HTTPError, NotFoundError } from "../core/errors.ts";
 import { normalizeLicense } from "../core/license.ts";
 import { normalizeRepositoryURL } from "../core/repository.ts";
+import { buildPURL } from "../core/purl.ts";
 
 /** PyPI JSON API response for a package. */
 interface PyPIPackageResponse {
@@ -216,9 +217,7 @@ class PyPIRegistry implements Registry {
           : `https://pypi.org/project/${normalized}/`;
       },
       purl: (name: string, version?: string) => {
-        const normalized = this.normalizeName(name);
-        const versionSuffix = version ? `@${version}` : "";
-        return `pkg:pypi/${normalized}${versionSuffix}`;
+        return buildPURL({ type: "pypi", name: this.normalizeName(name), version });
       },
     };
   }

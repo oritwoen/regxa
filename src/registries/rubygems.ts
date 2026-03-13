@@ -12,6 +12,7 @@ import { register } from "../core/registry.ts";
 import { HTTPError, NotFoundError } from "../core/errors.ts";
 import { combineLicenses, normalizeLicense } from "../core/license.ts";
 import { normalizeRepositoryURL } from "../core/repository.ts";
+import { buildPURL } from "../core/purl.ts";
 
 /** RubyGems API response for a single gem. */
 interface RubyGemsGemResponse {
@@ -221,8 +222,7 @@ class RubyGemsRegistry implements Registry {
         return version ? `${base}/versions/${version}` : base;
       },
       purl: (name: string, version?: string) => {
-        const versionSuffix = version ? `@${version}` : "";
-        return `pkg:gem/${name}${versionSuffix}`;
+        return buildPURL({ type: "gem", name, version });
       },
     };
   }

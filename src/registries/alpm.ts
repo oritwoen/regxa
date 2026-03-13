@@ -11,6 +11,7 @@ import type {
 import { register } from "../core/registry.ts";
 import { HTTPError, NotFoundError } from "../core/errors.ts";
 import { combineLicenses } from "../core/license.ts";
+import { buildPURL } from "../core/purl.ts";
 
 const AUR_BASE_URL = "https://aur.archlinux.org";
 
@@ -172,8 +173,7 @@ class AlpmRegistry implements Registry {
       },
       purl: (name: string, version?: string) => {
         const { namespace, pkgName } = this.parseName(name);
-        const versionSuffix = version ? `@${version}` : "";
-        return `pkg:alpm/${namespace}/${pkgName}${versionSuffix}`;
+        return buildPURL({ type: "alpm", namespace, name: pkgName, version });
       },
     };
   }
