@@ -113,10 +113,7 @@ export class CachedRegistry implements Registry {
     // 3. Fetch fresh data
     const value = await fetcher();
 
-    // Store to storage
-    await this.storage.setItem(storageKey, value as Record<string, unknown>);
-
-    // Update lockfile entry
+    // Persist to cache (best-effort — storage failures must not discard fetched data)
     const meta = extraMeta ? extraMeta(value) : {};
     const newEntry: LockfileEntry = {
       key,
@@ -126,8 +123,14 @@ export class CachedRegistry implements Registry {
       integrity: computeIntegrity(value),
       ...("latestVersion" in meta ? { latestVersion: meta["latestVersion"] as string } : {}),
     };
-    setEntry(lockfile, newEntry);
-    await writeLockfile(lockfile, this.lockfileStorage);
+    try {
+      await this.storage.setItem(storageKey, value as Record<string, unknown>);
+      setEntry(lockfile, newEntry);
+      await writeLockfile(lockfile, this.lockfileStorage);
+    } catch {
+      // Storage I/O failed (disk full, permissions, remote driver timeout, etc.).
+      // The data was already fetched successfully — return it anyway.
+    }
 
     return value;
   }

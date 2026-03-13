@@ -641,6 +641,36 @@ describe("CachedRegistry", () => {
       await expect(cached.fetchPackage("pkg")).rejects.toThrow("Network error");
     });
 
+    it("returns fetched data when storage write fails", async () => {
+      const inner = createMockRegistry("npm", {
+        fetchPackage: async () => ({
+          name: "pkg",
+          description: "Package",
+          homepage: "",
+          repository: "",
+          licenses: "MIT",
+          keywords: [],
+          namespace: "",
+          latestVersion: "1.0.0",
+          metadata: {},
+        }),
+      });
+
+      const failingStorage = {
+        getItem: async () => null,
+        setItem: async () => {
+          throw new Error("Disk full");
+        },
+        clear: async () => {},
+        dispose: async () => {},
+      } as unknown as import("unstorage").Storage;
+
+      const cached = new CachedRegistry(inner, failingStorage);
+      const pkg = await cached.fetchPackage("pkg");
+      expect(pkg.name).toBe("pkg");
+      expect(pkg.latestVersion).toBe("1.0.0");
+    });
+
     it("handles AbortSignal", async () => {
       const inner = createMockRegistry("npm", {
         fetchPackage: async (name, signal) => {
