@@ -1,7 +1,7 @@
 import consola from "consola";
 import type { Registry } from "../core/types.ts";
 import { createFromPURL, parsePURL, fullName } from "../core/purl.ts";
-import { create } from "../core/registry.ts";
+import { create, ecosystems } from "../core/registry.ts";
 import { NotFoundError, UnknownEcosystemError, InvalidPURLError } from "../core/errors.ts";
 import { CachedRegistry } from "../cache/cached-registry.ts";
 import "../registries/index.ts";
@@ -53,7 +53,7 @@ export async function withErrorHandling(fn: () => Promise<void>): Promise<void> 
     }
     if (error instanceof UnknownEcosystemError) {
       consola.error(`Unknown ecosystem: ${error.ecosystem}`);
-      consola.info("Supported: npm, cargo, pypi, gem, composer");
+      consola.info(`Supported: ${ecosystems().join(", ")}`);
       process.exit(1);
     }
     if (error instanceof InvalidPURLError) {
