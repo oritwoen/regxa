@@ -57,13 +57,18 @@ export async function bulkFetchPackages(
   const results = new Map<string, Package>();
   const queue = [...purls];
 
+  const signal = options?.signal;
+
   const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
     while (queue.length > 0) {
+      if (signal?.aborted) break;
+
       const purl = queue.shift()!;
       try {
-        const pkg = await fetchPackageFromPURL(purl, options?.signal, options?.client);
+        const pkg = await fetchPackageFromPURL(purl, signal, options?.client);
         results.set(purl, pkg);
       } catch {
+        if (signal?.aborted) break;
         // Silently skip failed lookups — absent from results map
       }
     }

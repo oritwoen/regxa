@@ -4,6 +4,7 @@ import {
   resolveDocsUrl,
   resolveReadmeUrl,
   fetchDependenciesFromPURL,
+  bulkFetchPackages,
 } from "../../src/helpers.ts";
 import { InvalidPURLError } from "../../src/core/errors.ts";
 import "../../src/registries/index.ts";
@@ -176,6 +177,79 @@ describe("fetchDependenciesFromPURL", () => {
   it("includes PURL string in InvalidPURLError", async () => {
     const purl = "pkg:npm/lodash";
     await expect(fetchDependenciesFromPURL(purl)).rejects.toThrow(purl);
+  });
+});
+
+describe("bulkFetchPackages", () => {
+  function makeMockRegistry(
+    fetchPackage: (name: string, signal?: AbortSignal) => Promise<Package>,
+  ) {
+    return {
+      ecosystem: () => "npm",
+      fetchPackage,
+      fetchVersions: async () => [],
+      fetchDependencies: async () => [],
+      fetchMaintainers: async () => [],
+      urls: () => ({
+        registry: () => "",
+        download: () => "",
+        documentation: () => "",
+        readme: () => "",
+        purl: () => "",
+      }),
+    };
+  }
+
+  it("stops fetching when signal is already aborted", async () => {
+    const controller = new AbortController();
+    controller.abort();
+
+    const fetchPackage = vi.fn().mockResolvedValue(pkg());
+    const registry = makeMockRegistry(fetchPackage);
+    vi.spyOn(await import("../../src/core/purl.ts"), "createFromPURL").mockReturnValue([
+      registry,
+      "test",
+      "",
+    ]);
+
+    const results = await bulkFetchPackages(["pkg:npm/a", "pkg:npm/b", "pkg:npm/c"], {
+      signal: controller.signal,
+    });
+
+    expect(results.size).toBe(0);
+    expect(fetchPackage).not.toHaveBeenCalled();
+
+    vi.restoreAllMocks();
+  });
+
+  it("stops workers when signal is aborted mid-flight", async () => {
+    const controller = new AbortController();
+    let fetchCount = 0;
+
+    const fetchPackage = vi.fn().mockImplementation(async (name: string, signal?: AbortSignal) => {
+      fetchCount++;
+      if (fetchCount >= 2) controller.abort();
+      if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+      return pkg({ name });
+    });
+
+    vi.spyOn(await import("../../src/core/purl.ts"), "createFromPURL").mockImplementation(
+      (purl: string) => {
+        const name = purl.replace("pkg:npm/", "");
+        return [makeMockRegistry(fetchPackage), name, ""];
+      },
+    );
+
+    const purls = Array.from({ length: 20 }, (_, i) => `pkg:npm/pkg-${i}`);
+    const results = await bulkFetchPackages(purls, {
+      signal: controller.signal,
+      concurrency: 1,
+    });
+
+    expect(results.size).toBeLessThanOrEqual(2);
+    expect(fetchCount).toBeLessThanOrEqual(3);
+
+    vi.restoreAllMocks();
   });
 });
 
