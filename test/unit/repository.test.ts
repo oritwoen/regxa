@@ -71,12 +71,28 @@ describe("repository", () => {
       expect(normalizeRepositoryURL("github:foo/bar")).toBe("https://github.com/foo/bar");
     });
 
+    it("handles GitHub shorthand with .git suffix", () => {
+      expect(normalizeRepositoryURL("github:foo/bar.git")).toBe("https://github.com/foo/bar");
+    });
+
+    it("handles GitHub shorthand with trailing slash", () => {
+      expect(normalizeRepositoryURL("github:foo/bar/")).toBe("https://github.com/foo/bar");
+    });
+
     it("handles GitLab shorthand", () => {
       expect(normalizeRepositoryURL("gitlab:foo/bar")).toBe("https://gitlab.com/foo/bar");
     });
 
+    it("handles GitLab shorthand with .git suffix", () => {
+      expect(normalizeRepositoryURL("gitlab:foo/bar.git")).toBe("https://gitlab.com/foo/bar");
+    });
+
     it("handles Bitbucket shorthand", () => {
       expect(normalizeRepositoryURL("bitbucket:foo/bar")).toBe("https://bitbucket.org/foo/bar");
+    });
+
+    it("handles Bitbucket shorthand with .git suffix", () => {
+      expect(normalizeRepositoryURL("bitbucket:foo/bar.git")).toBe("https://bitbucket.org/foo/bar");
     });
 
     it("strips .git suffix", () => {

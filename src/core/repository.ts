@@ -31,17 +31,17 @@ export function normalizeRepositoryURL(raw: unknown): string {
 
   // GitHub shorthand: "github:user/repo"
   if (url.startsWith("github:")) {
-    return `https://github.com/${url.slice(7)}`;
+    url = `https://github.com/${url.slice(7)}`;
   }
 
   // GitLab shorthand
   if (url.startsWith("gitlab:")) {
-    return `https://gitlab.com/${url.slice(7)}`;
+    url = `https://gitlab.com/${url.slice(7)}`;
   }
 
   // Bitbucket shorthand
   if (url.startsWith("bitbucket:")) {
-    return `https://bitbucket.org/${url.slice(10)}`;
+    url = `https://bitbucket.org/${url.slice(10)}`;
   }
 
   // Strip "git+" prefix
