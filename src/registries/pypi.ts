@@ -28,7 +28,7 @@ interface PyPIPackageResponse {
     project_urls: Record<string, string>;
     requires_dist: string[] | null;
   };
-  releases?: Record<string, PyPIRelease[]>;
+  releases?: Record<string, PyPIRelease[]> | null;
   urls: PyPIFile[];
 }
 
