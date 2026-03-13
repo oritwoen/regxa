@@ -97,7 +97,7 @@ export function parsePURL(purlStr: string): ParsedPURL {
 
   // Ecosystem-specific normalization per PURL spec
   if (type === "pypi") {
-    name = name.toLowerCase().replace(/_/g, "-");
+    name = name.toLowerCase().replace(/[-_.]+/g, "-");
   }
 
   if (type === "alpm") {

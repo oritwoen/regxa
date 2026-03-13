@@ -225,7 +225,7 @@ class PyPIRegistry implements Registry {
 
   /** Normalize package name per PEP 503. */
   private normalizeName(name: string): string {
-    return name.toLowerCase().replace(/_/g, "-");
+    return name.toLowerCase().replace(/[-_.]+/g, "-");
   }
 
   /** Extract repository URL from project_urls. */
@@ -289,7 +289,7 @@ class PyPIRegistry implements Registry {
     }
 
     return {
-      name: depName,
+      name: this.normalizeName(depName),
       requirements: versionSpec,
       scope,
       optional,
