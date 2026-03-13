@@ -105,11 +105,11 @@ Read `references/purl-cheatsheet.md` for the PURL format details and ecosystem-s
 
 ## Error Handling
 
-The tool handles errors internally and returns them as structured error objects:
+The tool throws errors as exceptions (not structured return values). The AI SDK catches these and surfaces them to the agent as tool call failures:
 
-- **Package not found**: Returns error with ecosystem and package name
-- **Invalid PURL**: Returns parse error with details
-- **Unknown ecosystem**: Returns list of supported ecosystems
-- **Rate limiting**: The HTTP client retries automatically with exponential backoff
+- **`NotFoundError`**: Package or version does not exist
+- **`InvalidPURLError`**: Malformed PURL string (missing `pkg:` prefix, bad encoding)
+- **`UnknownEcosystemError`**: Unsupported ecosystem type
+- **`RateLimitError`**: Registry rate limit hit (the HTTP client retries automatically first)
 
-If the tool call fails at the AI SDK level, the agent receives the error message and can self-correct (e.g., fix PURL format, try a different ecosystem).
+The agent receives the error message and can self-correct (e.g., fix PURL format, try a different ecosystem). If you need custom error handling, wrap the tool's `execute` function.

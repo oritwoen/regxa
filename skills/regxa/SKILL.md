@@ -27,7 +27,7 @@ pkg:<type>/<name>@<version>
 | Packagist | `composer` | `pkg:composer/laravel/framework@11.0.0` |
 | Arch Linux | `alpm` | `pkg:alpm/arch/linux`, `pkg:alpm/aur/yay` |
 
-Shorthand without `pkg:` prefix also works: `npm/lodash@4.17.21`.
+The CLI accepts shorthand without the `pkg:` prefix (e.g., `npm/lodash@4.17.21`). The library API requires the full `pkg:` prefix.
 
 Read `references/purl-guide.md` for scoped packages, namespaces, and special characters.
 
@@ -65,7 +65,6 @@ regxa maintainers pkg:composer/laravel/framework
 
 ```bash
 regxa cache clear          # Clear all cached data
-regxa cache clear npm      # Clear cache for one ecosystem
 ```
 
 All commands accept `--json` for machine-readable output and `--no-cache` to bypass the cache.

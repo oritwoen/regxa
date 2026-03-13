@@ -53,15 +53,17 @@ Characters that need percent-encoding in PURLs:
 | `+` | `%2B` | `1.0.0%2Bbuild.123` |
 | space | `%20` | `my%20package` |
 
-## Shorthand
+## Shorthand (CLI only)
 
-regxa accepts shorthand without the `pkg:` prefix:
+The CLI accepts shorthand without the `pkg:` prefix:
 
 ```
 npm/lodash@4.17.21          -> pkg:npm/lodash@4.17.21
 cargo/serde                 -> pkg:cargo/serde
 pypi/flask@3.1.1            -> pkg:pypi/flask@3.1.1
 ```
+
+The library API (`fetchPackageFromPURL`, `parsePURL`, etc.) requires the full `pkg:` prefix. Shorthand will throw `InvalidPURLError`.
 
 ## Name Normalization
 
