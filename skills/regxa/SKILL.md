@@ -14,7 +14,7 @@ regxa is a universal package registry client. It queries npm, PyPI, crates.io, R
 
 All queries use PURLs to identify packages:
 
-```
+```text
 pkg:<type>/<name>@<version>
 ```
 
@@ -146,12 +146,13 @@ const pkg = await cached.fetchPackage("lodash");
 ### Helper utilities
 
 ```typescript
-import { selectVersion, resolveDocsUrl } from "regxa";
+import { create, selectVersion, resolveDocsUrl } from "regxa";
 
 // Pick the best version from a list
 const best = selectVersion(versions, { requested: "4.17.21" });
 
 // Resolve documentation URL with fallback chain
+const npm = create("npm");
 const docsUrl = resolveDocsUrl(pkg, npm.urls(), "4.17.21");
 ```
 

@@ -113,4 +113,4 @@ The tool throws errors as exceptions (not structured return values). The AI SDK 
 - **`UnknownEcosystemError`**: Unsupported ecosystem type
 - **`RateLimitError`**: Registry rate limit hit (the HTTP client retries automatically first)
 
-When using `maxSteps` or a tool loop, the agent receives the error message and can self-correct (e.g., fix PURL format, try a different ecosystem). For single-step calls, errors propagate to the caller. If you need custom error handling, wrap the tool's `execute` function.
+With multi-step tool use, failed calls appear as `tool-error` parts and the agent can self-correct (e.g., fix PURL format, try a different ecosystem). If you need custom error handling, wrap the tool's `execute` function.
