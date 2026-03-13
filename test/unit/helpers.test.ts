@@ -181,6 +181,10 @@ describe("fetchDependenciesFromPURL", () => {
 });
 
 describe("bulkFetchPackages", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   function makeMockRegistry(
     fetchPackage: (name: string, signal?: AbortSignal) => Promise<Package>,
   ) {
@@ -218,8 +222,6 @@ describe("bulkFetchPackages", () => {
 
     expect(results.size).toBe(0);
     expect(fetchPackage).not.toHaveBeenCalled();
-
-    vi.restoreAllMocks();
   });
 
   it("stops workers when signal is aborted mid-flight", async () => {
@@ -248,8 +250,6 @@ describe("bulkFetchPackages", () => {
 
     expect(results.size).toBeLessThanOrEqual(1);
     expect(fetchCount).toBeLessThanOrEqual(2);
-
-    vi.restoreAllMocks();
   });
 });
 
