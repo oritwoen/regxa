@@ -246,8 +246,8 @@ describe("bulkFetchPackages", () => {
       concurrency: 1,
     });
 
-    expect(results.size).toBeLessThanOrEqual(2);
-    expect(fetchCount).toBeLessThanOrEqual(3);
+    expect(results.size).toBeLessThanOrEqual(1);
+    expect(fetchCount).toBeLessThanOrEqual(2);
 
     vi.restoreAllMocks();
   });
