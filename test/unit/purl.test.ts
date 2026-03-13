@@ -105,6 +105,14 @@ describe("purl", () => {
       expect(result.version).toBe("3.14.0");
     });
 
+    it("normalizes PyPI dots and separator runs per PEP 503", () => {
+      expect(parsePURL("pkg:pypi/my.package").name).toBe("my-package");
+      expect(parsePURL("pkg:pypi/my..package").name).toBe("my-package");
+      expect(parsePURL("pkg:pypi/my--package").name).toBe("my-package");
+      expect(parsePURL("pkg:pypi/my_-_package").name).toBe("my-package");
+      expect(parsePURL("pkg:pypi/Babel.js").name).toBe("babel-js");
+    });
+
     it("throws on missing pkg: prefix", () => {
       expect(() => parsePURL("npm/lodash")).toThrow(InvalidPURLError);
       expect(() => parsePURL("npm/lodash")).toThrow('must start with "pkg:"');
