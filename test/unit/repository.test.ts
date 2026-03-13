@@ -79,6 +79,10 @@ describe("repository", () => {
       expect(normalizeRepositoryURL("github:foo/bar/")).toBe("https://github.com/foo/bar");
     });
 
+    it("handles GitHub shorthand with .git and trailing slash", () => {
+      expect(normalizeRepositoryURL("github:foo/bar.git/")).toBe("https://github.com/foo/bar");
+    });
+
     it("handles GitLab shorthand", () => {
       expect(normalizeRepositoryURL("gitlab:foo/bar")).toBe("https://gitlab.com/foo/bar");
     });
@@ -107,9 +111,9 @@ describe("repository", () => {
       );
     });
 
-    it("strips trailing slash after .git", () => {
+    it("strips trailing slash before .git suffix", () => {
       expect(normalizeRepositoryURL("https://github.com/foo/bar.git/")).toBe(
-        "https://github.com/foo/bar.git",
+        "https://github.com/foo/bar",
       );
     });
 

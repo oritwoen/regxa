@@ -65,14 +65,14 @@ export function normalizeRepositoryURL(raw: unknown): string {
     url = `https://${sshMatch[1]}/${sshMatch[2]}`;
   }
 
+  // Strip trailing slash first so ".git/" doesn't survive
+  if (url.endsWith("/")) {
+    url = url.slice(0, -1);
+  }
+
   // Strip .git suffix
   if (url.endsWith(".git")) {
     url = url.slice(0, -4);
-  }
-
-  // Strip trailing slash
-  if (url.endsWith("/")) {
-    url = url.slice(0, -1);
   }
 
   return url;
