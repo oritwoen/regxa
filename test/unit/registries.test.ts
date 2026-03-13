@@ -669,6 +669,59 @@ describe("Registry Modules", () => {
       expect(versions[1].number).toBe("2.31.0");
       expect(versions[1].status).toBe("yanked");
     });
+
+    it("should return empty versions when releases key is missing", async () => {
+      const client = new Client();
+      const mockResponse = {
+        info: {
+          name: "requests",
+          version: "2.31.0",
+          summary: "Python HTTP for Humans.",
+          description: "",
+          license: "Apache 2.0",
+          keywords: "",
+          author: "Kenneth Reitz",
+          author_email: "me@kennethreitz.org",
+          project_urls: {},
+          requires_dist: null,
+        },
+        urls: [],
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("pypi", undefined, client);
+      const versions = await registry.fetchVersions("requests");
+
+      expect(versions).toHaveLength(0);
+    });
+
+    it("should return empty versions when releases is null", async () => {
+      const client = new Client();
+      const mockResponse = {
+        info: {
+          name: "requests",
+          version: "2.31.0",
+          summary: "",
+          description: "",
+          license: "",
+          keywords: "",
+          author: "",
+          author_email: "",
+          project_urls: {},
+          requires_dist: null,
+        },
+        releases: null,
+        urls: [],
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("pypi", undefined, client);
+      const versions = await registry.fetchVersions("requests");
+
+      expect(versions).toHaveLength(0);
+    });
   });
 
   describe("rubygems registry", () => {

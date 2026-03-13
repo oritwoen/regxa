@@ -28,7 +28,7 @@ interface PyPIPackageResponse {
     project_urls: Record<string, string>;
     requires_dist: string[] | null;
   };
-  releases: Record<string, PyPIRelease[]>;
+  releases?: Record<string, PyPIRelease[]>;
   urls: PyPIFile[];
 }
 
@@ -108,7 +108,8 @@ class PyPIRegistry implements Registry {
       const data = await this.client.getJSON<PyPIPackageResponse>(url, signal);
       const versions: Version[] = [];
 
-      for (const [versionStr, releases] of Object.entries(data.releases)) {
+      const releaseMap = data.releases ?? {};
+      for (const [versionStr, releases] of Object.entries(releaseMap)) {
         if (releases.length === 0) continue;
 
         const release = releases[0]!;
