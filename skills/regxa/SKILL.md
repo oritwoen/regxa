@@ -27,7 +27,7 @@ pkg:<type>/<name>@<version>
 | Packagist | `composer` | `pkg:composer/laravel/framework@11.0.0` |
 | Arch Linux | `alpm` | `pkg:alpm/arch/linux`, `pkg:alpm/aur/yay` |
 
-The CLI accepts shorthand without the `pkg:` prefix (e.g., `npm/lodash@4.17.21`). The library API requires the full `pkg:` prefix.
+The CLI accepts shorthand without the `pkg:` prefix (e.g., `npm/lodash@4.17.21`). The PURL helpers (`fetchPackageFromPURL`, etc.) require the full `pkg:` prefix. The lower-level registry API takes bare package names directly.
 
 Read `references/purl-guide.md` for scoped packages, namespaces, and special characters.
 
@@ -67,7 +67,7 @@ regxa maintainers pkg:composer/laravel/framework
 regxa cache clear          # Clear all cached data
 ```
 
-All commands accept `--json` for machine-readable output and `--no-cache` to bypass the cache.
+Query commands (`info`, `versions`, `deps`, `maintainers`) accept `--json` for machine-readable output and `--no-cache` to bypass the cache.
 
 ## Using the Library API
 
@@ -103,7 +103,7 @@ const deps = await fetchDependenciesFromPURL("pkg:pypi/flask@3.1.1");
 // Maintainers
 const maintainers = await fetchMaintainersFromPURL("pkg:gem/rails");
 
-// Bulk fetch (up to 50, concurrent)
+// Bulk fetch (concurrent)
 const packages = await bulkFetchPackages([
   "pkg:npm/lodash",
   "pkg:cargo/serde",
@@ -152,7 +152,7 @@ import { selectVersion, resolveDocsUrl } from "regxa";
 const best = selectVersion(versions, { requested: "4.17.21" });
 
 // Resolve documentation URL with fallback chain
-const docsUrl = resolveDocsUrl(pkg, registry.urls(), "4.17.21");
+const docsUrl = resolveDocsUrl(pkg, npm.urls(), "4.17.21");
 ```
 
 Read `references/api-reference.md` for the full type definitions and return shapes.

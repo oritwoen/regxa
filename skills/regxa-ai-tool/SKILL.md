@@ -60,7 +60,7 @@ Returns: version numbers, publish dates, integrity hashes, status (yanked/deprec
 { "operation": "dependencies", "purl": "pkg:pypi/flask@3.1.1" }
 ```
 
-Returns: dependency names, version constraints, scope (runtime/dev/test/build), optional flag.
+Returns: dependency names, version constraints, scope (runtime/development/test/build/optional), optional flag.
 
 **Note:** The PURL must include a version. Without it, the tool returns an error.
 
@@ -86,6 +86,7 @@ The tool works with `streamText` as well:
 
 ```typescript
 import { streamText } from "ai";
+import { openai } from "@ai-sdk/openai";
 import { packageTool } from "regxa/ai";
 
 const result = streamText({
@@ -112,4 +113,4 @@ The tool throws errors as exceptions (not structured return values). The AI SDK 
 - **`UnknownEcosystemError`**: Unsupported ecosystem type
 - **`RateLimitError`**: Registry rate limit hit (the HTTP client retries automatically first)
 
-The agent receives the error message and can self-correct (e.g., fix PURL format, try a different ecosystem). If you need custom error handling, wrap the tool's `execute` function.
+When using `maxSteps` or a tool loop, the agent receives the error message and can self-correct (e.g., fix PURL format, try a different ecosystem). For single-step calls, errors propagate to the caller. If you need custom error handling, wrap the tool's `execute` function.
