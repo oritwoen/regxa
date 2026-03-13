@@ -1,0 +1,12 @@
+interface:
+  display_name: regxa AI Tool
+  short_description: Integrate regxa packageTool into Vercel AI SDK apps for structured registry queries
+  brand_color: "#3b82f6"
+  default_prompt: Set up packageTool for an AI agent that needs to query package registries
+
+policy:
+  allow_implicit_invocation: false
+
+dependencies:
+  tools:
+    - regxa

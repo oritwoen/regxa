@@ -1,0 +1,8 @@
+interface:
+  display_name: regxa
+  short_description: Query package registries (npm, PyPI, crates.io, RubyGems, Packagist, Arch Linux) using PURLs
+  brand_color: "#3b82f6"
+  default_prompt: Look up package info, versions, dependencies, or maintainers across ecosystems
+
+policy:
+  allow_implicit_invocation: true
