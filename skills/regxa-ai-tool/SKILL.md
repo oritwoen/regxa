@@ -1,6 +1,9 @@
 ---
 name: regxa-ai-tool
 description: Integrates regxa's packageTool into AI applications built with the Vercel AI SDK. Provides structured package registry queries (info, versions, dependencies, maintainers, bulk lookups) as a tool for LLM agents. Use when building AI apps that need to query npm, PyPI, crates.io, or other registries. Do not use for direct CLI usage or non-AI integrations.
+metadata:
+  author: oritwoen
+  version: "0.1.5"
 ---
 
 # regxa AI Tool Integration

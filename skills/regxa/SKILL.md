@@ -1,6 +1,9 @@
 ---
 name: regxa
 description: Query package metadata from npm, PyPI, crates.io, RubyGems, Packagist, and Arch Linux using regxa. Supports looking up package info, versions, dependencies, and maintainers via PURL-native API or CLI. Use when the user needs package registry data across ecosystems. Do not use for building or publishing packages, managing lockfiles, or installing dependencies.
+metadata:
+  author: oritwoen
+  version: "0.1.5"
 ---
 
 # Query Package Registries with regxa
