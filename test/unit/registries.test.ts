@@ -164,6 +164,60 @@ describe("Registry Modules", () => {
       expect(maintainers[2].role).toBe("contributor");
     });
 
+    it("should fetch dependencies from per-version endpoint", async () => {
+      const client = new Client();
+      const mockVersionResponse = {
+        name: "lodash",
+        version: "4.17.21",
+        dependencies: {
+          underscore: "^1.0.0",
+        },
+        devDependencies: {
+          mocha: "^10.0.0",
+        },
+        optionalDependencies: {
+          fsevents: "^2.3.0",
+        },
+        peerDependencies: {
+          webpack: "^5.0.0",
+        },
+      };
+
+      const spy = vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockVersionResponse);
+
+      const registry = create("npm", undefined, client);
+      const deps = await registry.fetchDependencies("lodash", "4.17.21");
+
+      // Should call per-version endpoint, not full package doc
+      expect(spy).toHaveBeenCalledWith("https://registry.npmjs.org/lodash/4.17.21", undefined);
+
+      expect(deps).toHaveLength(4);
+      expect(deps[0]).toEqual({
+        name: "underscore",
+        requirements: "^1.0.0",
+        scope: "runtime",
+        optional: false,
+      });
+      expect(deps[1]).toEqual({
+        name: "mocha",
+        requirements: "^10.0.0",
+        scope: "development",
+        optional: false,
+      });
+      expect(deps[2]).toEqual({
+        name: "fsevents",
+        requirements: "^2.3.0",
+        scope: "runtime",
+        optional: true,
+      });
+      expect(deps[3]).toEqual({
+        name: "webpack",
+        requirements: "^5.0.0",
+        scope: "runtime",
+        optional: false,
+      });
+    });
+
     it("should produce valid PURL for scoped packages", () => {
       const registry = create("npm");
       const urls = registry.urls();

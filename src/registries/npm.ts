@@ -173,15 +173,10 @@ class NpmRegistry implements Registry {
     signal?: AbortSignal,
   ): Promise<Dependency[]> {
     const encodedName = this.encodeName(name);
-    const url = `${this.baseURL}/${encodedName}`;
+    const url = `${this.baseURL}/${encodedName}/${version}`;
 
     try {
-      const data = await this.client.getJSON<NpmPackageResponse>(url, signal);
-      const versionData = data.versions[version];
-
-      if (!versionData) {
-        throw new NotFoundError("npm", name, version);
-      }
+      const versionData = await this.client.getJSON<NpmVersion>(url, signal);
 
       const dependencies: Dependency[] = [];
 
