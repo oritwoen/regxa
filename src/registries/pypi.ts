@@ -146,7 +146,7 @@ class PyPIRegistry implements Registry {
         const file = sdist ?? files[0]!;
         const publishedAt = file["upload-time"] ? new Date(file["upload-time"]) : null;
         const integrity = file.hashes?.sha256 ? `sha256-${file.hashes.sha256}` : "";
-        const status = file.yanked !== false && file.yanked !== undefined ? "yanked" : "";
+        const status = file.yanked ? "yanked" : "";
 
         this.downloadUrls.set(`${normalized}@${versionStr}`, file.url);
 
