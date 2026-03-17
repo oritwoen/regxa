@@ -112,9 +112,7 @@ class PyPIRegistry implements Registry {
       for (const [versionStr, releases] of Object.entries(releaseMap)) {
         if (releases.length === 0) continue;
 
-        // Prefer sdist (.tar.gz) for download URL, fall back to first file
-        const sdist = releases.find((r) => r.filename.endsWith(".tar.gz"));
-        const release = sdist ?? releases[0]!;
+        const release = releases[0]!;
         const publishedAt = release.upload_time_iso_8601
           ? new Date(release.upload_time_iso_8601)
           : null;
@@ -127,7 +125,7 @@ class PyPIRegistry implements Registry {
           licenses: "",
           integrity,
           status,
-          metadata: { downloadUrl: release.url },
+          metadata: {},
         });
       }
 
