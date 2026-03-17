@@ -55,9 +55,15 @@ export class CachedRegistry implements Registry {
   }
 
   async fetchVersions(name: string, signal?: AbortSignal): Promise<Version[]> {
-    return this.cached<Version[]>(name, "versions", undefined, () =>
+    const versions = await this.cached<Version[]>(name, "versions", undefined, () =>
       this.inner.fetchVersions(name, signal),
     );
+    // JSON round-trip through storage turns Date objects into ISO strings.
+    // Revive them so consumers can safely call .getTime() / .toISOString().
+    return versions.map((v) => ({
+      ...v,
+      publishedAt: v.publishedAt ? new Date(v.publishedAt as unknown as string) : null,
+    }));
   }
 
   async fetchDependencies(
