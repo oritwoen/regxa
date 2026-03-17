@@ -339,12 +339,11 @@ class NpmRegistry implements Registry {
     };
   }
 
-  /** Build a stable dedup key from name+email. Returns empty string when both are missing. */
+  /** Build a stable dedup key. Prefers email (unique per account), falls back to name. */
   private maintainerKey(name: string | undefined, email: string | undefined): string {
-    const n = name || "";
-    const e = email || "";
-    if (!n && !e) return "";
-    return `${n}:${e}`;
+    if (email) return email;
+    if (name) return name;
+    return "";
   }
 
   /** Encode package name for URL (handle scoped packages). */
