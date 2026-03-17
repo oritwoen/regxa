@@ -175,7 +175,9 @@ export class CachedRegistry implements Registry {
     try {
       return await flight;
     } finally {
-      this.inflight.delete(key);
+      if (!signal) {
+        this.inflight.delete(key);
+      }
     }
   }
 }

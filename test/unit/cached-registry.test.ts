@@ -760,11 +760,44 @@ describe("CachedRegistry", () => {
         },
       });
       const cached = new CachedRegistry(inner);
+      const controllerA = new AbortController();
+      const controllerB = new AbortController();
+
+      // Two concurrent calls with different signals - should NOT coalesce
+      const results = await Promise.all([
+        cached.fetchPackage("pkg", controllerA.signal),
+        cached.fetchPackage("pkg", controllerB.signal),
+      ]);
+
+      expect(fetchCount).toBe(2);
+      expect(results[0].name).toBe("pkg");
+      expect(results[1].name).toBe("pkg");
+    });
+
+    it("should not coalesce signal call with non-signal call", async () => {
+      let fetchCount = 0;
+      const inner = createMockRegistry("npm", {
+        fetchPackage: async () => {
+          fetchCount++;
+          await new Promise((r) => setTimeout(r, 50));
+          return {
+            name: "pkg",
+            description: "",
+            homepage: "",
+            repository: "",
+            licenses: "MIT",
+            keywords: [],
+            namespace: "",
+            latestVersion: "1.0.0",
+            metadata: {},
+          };
+        },
+      });
+      const cached = new CachedRegistry(inner);
       const controller = new AbortController();
 
-      // Two concurrent calls, both with signals - should NOT coalesce
       const results = await Promise.all([
-        cached.fetchPackage("pkg", controller.signal),
+        cached.fetchPackage("pkg"),
         cached.fetchPackage("pkg", controller.signal),
       ]);
 
