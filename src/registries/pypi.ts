@@ -205,7 +205,7 @@ class PyPIRegistry implements Registry {
       },
       download: (name: string, version: string) => {
         const normalized = this.normalizeName(name);
-        return `https://pypi.org/pypi/${normalized}/${version}`;
+        return `https://pypi.org/project/${normalized}/${version}/#files`;
       },
       documentation: (name: string, _version?: string) => {
         const normalized = this.normalizeName(name);
@@ -241,10 +241,7 @@ class PyPIRegistry implements Registry {
   }
 
   /** Find a project URL by key, case-insensitive. */
-  private findProjectUrl(
-    projectUrls: Record<string, string> | undefined,
-    keys: string[],
-  ): string {
+  private findProjectUrl(projectUrls: Record<string, string> | undefined, keys: string[]): string {
     if (!projectUrls) return "";
 
     const lowered = new Map<string, string>();
