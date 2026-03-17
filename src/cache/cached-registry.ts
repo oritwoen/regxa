@@ -29,6 +29,7 @@ export class CachedRegistry implements Registry {
   readonly inner: Registry;
   readonly storage: Storage;
   private readonly lockfileStorage: Storage;
+  private readonly inflight = new Map<string, Promise<unknown>>();
 
   constructor(inner: Registry, storage?: Storage) {
     this.inner = inner;
@@ -116,31 +117,45 @@ export class CachedRegistry implements Registry {
       }
     }
 
-    // 3. Fetch fresh data
-    const value = await fetcher();
-
-    // Persist to cache (best-effort — storage failures must not discard fetched data)
-    const meta = extraMeta ? extraMeta(value) : {};
-    const newEntry: LockfileEntry = {
-      key,
-      type,
-      fetchedAt: Date.now(),
-      ttl: DEFAULT_TTL[type],
-      integrity: computeIntegrity(value),
-      ...("latestVersion" in meta ? { latestVersion: meta["latestVersion"] as string } : {}),
-    };
-    try {
-      await this.storage.setItem(storageKey, value as Record<string, unknown>);
-      // Re-read lockfile before writing to avoid overwriting entries
-      // added by concurrent calls for different keys.
-      const freshLockfile = await readLockfile(this.lockfileStorage);
-      setEntry(freshLockfile, newEntry);
-      await writeLockfile(freshLockfile, this.lockfileStorage);
-    } catch {
-      // Storage I/O failed (disk full, permissions, remote driver timeout, etc.).
-      // The data was already fetched successfully — return it anyway.
+    // 3. Coalesce concurrent fetches for the same key (single-flight)
+    const pending = this.inflight.get(key);
+    if (pending) {
+      return pending as Promise<T>;
     }
 
-    return value;
+    const flight = (async () => {
+      const value = await fetcher();
+
+      // Persist to cache (best-effort - storage failures must not discard fetched data)
+      const meta = extraMeta ? extraMeta(value) : {};
+      const newEntry: LockfileEntry = {
+        key,
+        type,
+        fetchedAt: Date.now(),
+        ttl: DEFAULT_TTL[type],
+        integrity: computeIntegrity(value),
+        ...("latestVersion" in meta ? { latestVersion: meta["latestVersion"] as string } : {}),
+      };
+      try {
+        await this.storage.setItem(storageKey, value as Record<string, unknown>);
+        // Re-read lockfile before writing to avoid overwriting entries
+        // added by concurrent calls for different keys.
+        const freshLockfile = await readLockfile(this.lockfileStorage);
+        setEntry(freshLockfile, newEntry);
+        await writeLockfile(freshLockfile, this.lockfileStorage);
+      } catch {
+        // Storage I/O failed (disk full, permissions, remote driver timeout, etc.).
+        // The data was already fetched successfully - return it anyway.
+      }
+
+      return value;
+    })();
+
+    this.inflight.set(key, flight);
+    try {
+      return await flight;
+    } finally {
+      this.inflight.delete(key);
+    }
   }
 }

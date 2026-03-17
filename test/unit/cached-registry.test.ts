@@ -645,6 +645,102 @@ describe("CachedRegistry", () => {
     });
   });
 
+  describe("single-flight deduplication", () => {
+    it("should coalesce concurrent fetches for the same key into one upstream call", async () => {
+      let fetchCount = 0;
+      const inner = createMockRegistry("npm", {
+        fetchPackage: async () => {
+          fetchCount++;
+          // Simulate network delay so concurrent callers overlap
+          await new Promise((r) => setTimeout(r, 50));
+          return {
+            name: "lodash",
+            description: "Utility library",
+            homepage: "",
+            repository: "",
+            licenses: "MIT",
+            keywords: [],
+            namespace: "",
+            latestVersion: "4.17.21",
+            metadata: {},
+          };
+        },
+      });
+      const cached = new CachedRegistry(inner);
+
+      // Fire 5 concurrent requests for the same package
+      const results = await Promise.all([
+        cached.fetchPackage("lodash"),
+        cached.fetchPackage("lodash"),
+        cached.fetchPackage("lodash"),
+        cached.fetchPackage("lodash"),
+        cached.fetchPackage("lodash"),
+      ]);
+
+      // Only one upstream fetch should have happened
+      expect(fetchCount).toBe(1);
+      // All callers get the same data
+      for (const pkg of results) {
+        expect(pkg.name).toBe("lodash");
+        expect(pkg.latestVersion).toBe("4.17.21");
+      }
+    });
+
+    it("should fetch again after a previous in-flight request completes", async () => {
+      let fetchCount = 0;
+      const inner = createMockRegistry("npm", {
+        fetchPackage: async () => {
+          fetchCount++;
+          return {
+            name: "pkg",
+            description: "",
+            homepage: "",
+            repository: "",
+            licenses: "MIT",
+            keywords: [],
+            namespace: "",
+            latestVersion: `${fetchCount}.0.0`,
+            metadata: {},
+          };
+        },
+      });
+      const cached = new CachedRegistry(inner);
+
+      await cached.fetchPackage("pkg");
+      expect(fetchCount).toBe(1);
+
+      // Expire cache so next call triggers a fresh fetch
+      mockLockfile = { version: 1, entries: {} };
+
+      await cached.fetchPackage("pkg");
+      expect(fetchCount).toBe(2);
+    });
+
+    it("should propagate errors to all waiters when in-flight fetch fails", async () => {
+      let fetchCount = 0;
+      const inner = createMockRegistry("npm", {
+        fetchPackage: async () => {
+          fetchCount++;
+          await new Promise((r) => setTimeout(r, 50));
+          throw new Error("Registry down");
+        },
+      });
+      const cached = new CachedRegistry(inner);
+
+      const promises = [
+        cached.fetchPackage("pkg"),
+        cached.fetchPackage("pkg"),
+        cached.fetchPackage("pkg"),
+      ];
+
+      for (const p of promises) {
+        await expect(p).rejects.toThrow("Registry down");
+      }
+      // Only one actual fetch attempt
+      expect(fetchCount).toBe(1);
+    });
+  });
+
   describe("ecosystem isolation", () => {
     it("does not collide when two ecosystems cache the same package name", async () => {
       const npmInner = createMockRegistry("npm", {
