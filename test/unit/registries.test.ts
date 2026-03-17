@@ -747,45 +747,25 @@ describe("Registry Modules", () => {
     it("should fetch pypi versions with yanked status", async () => {
       const client = new Client();
       const mockResponse = {
-        info: {
-          name: "requests",
-          version: "2.31.0",
-          summary: "Python HTTP for Humans.",
-          description: "Requests is a simple, yet elegant, HTTP library.",
-          license: "Apache 2.0",
-          keywords: "requests, urllib, httplib",
-          author: "Kenneth Reitz",
-          author_email: "me@kennethreitz.org",
-          project_urls: {
-            Homepage: "https://requests.readthedocs.io",
+        meta: { "api-version": "1.1" },
+        name: "requests",
+        versions: ["2.30.0", "2.31.0"],
+        files: [
+          {
+            filename: "requests-2.30.0-py3-none-any.whl",
+            url: "https://files.pythonhosted.org/packages/requests-2.30.0-py3-none-any.whl",
+            hashes: { sha256: "abc123def456" },
+            yanked: false,
+            "upload-time": "2023-05-15T10:00:00Z",
           },
-          requires_dist: null,
-        },
-        releases: {
-          "2.30.0": [
-            {
-              filename: "requests-2.30.0-py3-none-any.whl",
-              url: "https://files.pythonhosted.org/packages/requests-2.30.0-py3-none-any.whl",
-              upload_time_iso_8601: "2023-05-15T10:00:00Z",
-              yanked: false,
-              digests: {
-                sha256: "abc123def456",
-              },
-            },
-          ],
-          "2.31.0": [
-            {
-              filename: "requests-2.31.0-py3-none-any.whl",
-              url: "https://files.pythonhosted.org/packages/requests-2.31.0-py3-none-any.whl",
-              upload_time_iso_8601: "2023-10-15T10:00:00Z",
-              yanked: true,
-              digests: {
-                sha256: "def456ghi789",
-              },
-            },
-          ],
-        },
-        urls: [],
+          {
+            filename: "requests-2.31.0-py3-none-any.whl",
+            url: "https://files.pythonhosted.org/packages/requests-2.31.0-py3-none-any.whl",
+            hashes: { sha256: "def456ghi789" },
+            yanked: "security vulnerability",
+            "upload-time": "2023-10-15T10:00:00Z",
+          },
+        ],
       };
 
       vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
@@ -801,22 +781,13 @@ describe("Registry Modules", () => {
       expect(versions[1].status).toBe("yanked");
     });
 
-    it("should return empty versions when releases key is missing", async () => {
+    it("should return empty versions when Simple API returns no versions", async () => {
       const client = new Client();
       const mockResponse = {
-        info: {
-          name: "requests",
-          version: "2.31.0",
-          summary: "Python HTTP for Humans.",
-          description: "",
-          license: "Apache 2.0",
-          keywords: "",
-          author: "Kenneth Reitz",
-          author_email: "me@kennethreitz.org",
-          project_urls: {},
-          requires_dist: null,
-        },
-        urls: [],
+        meta: { "api-version": "1.1" },
+        name: "requests",
+        versions: [],
+        files: [],
       };
 
       vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
@@ -827,23 +798,21 @@ describe("Registry Modules", () => {
       expect(versions).toHaveLength(0);
     });
 
-    it("should return empty versions when releases is null", async () => {
+    it("should include versions with no matching files", async () => {
       const client = new Client();
       const mockResponse = {
-        info: {
-          name: "requests",
-          version: "2.31.0",
-          summary: "",
-          description: "",
-          license: "",
-          keywords: "",
-          author: "",
-          author_email: "",
-          project_urls: {},
-          requires_dist: null,
-        },
-        releases: null,
-        urls: [],
+        meta: { "api-version": "1.1" },
+        name: "requests",
+        versions: ["1.0.0", "2.0.0"],
+        files: [
+          {
+            filename: "requests-2.0.0.tar.gz",
+            url: "https://files.pythonhosted.org/packages/requests-2.0.0.tar.gz",
+            hashes: { sha256: "abc123" },
+            yanked: false,
+            "upload-time": "2023-01-01T00:00:00Z",
+          },
+        ],
       };
 
       vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
@@ -851,7 +820,12 @@ describe("Registry Modules", () => {
       const registry = create("pypi", undefined, client);
       const versions = await registry.fetchVersions("requests");
 
-      expect(versions).toHaveLength(0);
+      expect(versions).toHaveLength(2);
+      expect(versions[0].number).toBe("1.0.0");
+      expect(versions[0].publishedAt).toBeNull();
+      expect(versions[0].integrity).toBe("");
+      expect(versions[1].number).toBe("2.0.0");
+      expect(versions[1].integrity).toContain("sha256");
     });
   });
 

@@ -28,19 +28,7 @@ interface PyPIPackageResponse {
     project_urls: Record<string, string>;
     requires_dist: string[] | null;
   };
-  releases?: Record<string, PyPIRelease[]> | null;
   urls: PyPIFile[];
-}
-
-/** PyPI release file information. */
-interface PyPIRelease {
-  filename: string;
-  url: string;
-  upload_time_iso_8601: string;
-  yanked: boolean;
-  digests: {
-    sha256: string;
-  };
 }
 
 /** PyPI file information. */
@@ -52,6 +40,24 @@ interface PyPIFile {
   digests: {
     sha256: string;
   };
+}
+
+/** PyPI Simple API (PEP 691) response for a project. */
+interface PyPISimpleResponse {
+  meta: { "api-version": string };
+  name: string;
+  versions: string[];
+  files: PyPISimpleFile[];
+}
+
+/** A single file entry in the Simple API response. */
+interface PyPISimpleFile {
+  filename: string;
+  url: string;
+  hashes: { sha256?: string };
+  "requires-python"?: string;
+  yanked?: string | false;
+  "upload-time"?: string;
 }
 
 /** PyPI registry client. */
@@ -103,25 +109,46 @@ class PyPIRegistry implements Registry {
 
   async fetchVersions(name: string, signal?: AbortSignal): Promise<Version[]> {
     const normalized = this.normalizeName(name);
-    const url = `${this.baseURL}/pypi/${normalized}/json`;
+    const url = `${this.baseURL}/simple/${normalized}/`;
 
     try {
-      const data = await this.client.getJSON<PyPIPackageResponse>(url, signal);
+      const data = await this.client.getJSON<PyPISimpleResponse>(url, signal, {
+        Accept: "application/vnd.pypi.simple.v1+json",
+      });
+
+      const filesByVersion = new Map<string, PyPISimpleFile[]>();
+      for (const version of data.versions) {
+        filesByVersion.set(version, []);
+      }
+
+      for (const file of data.files) {
+        const version = this.matchFileVersion(file.filename, normalized, data.versions);
+        if (version) {
+          filesByVersion.get(version)!.push(file);
+        }
+      }
+
       const versions: Version[] = [];
+      for (const [versionStr, files] of filesByVersion) {
+        if (files.length === 0) {
+          versions.push({
+            number: versionStr,
+            publishedAt: null,
+            licenses: "",
+            integrity: "",
+            status: "",
+            metadata: {},
+          });
+          continue;
+        }
 
-      const releaseMap = data.releases ?? {};
-      for (const [versionStr, releases] of Object.entries(releaseMap)) {
-        if (releases.length === 0) continue;
+        const sdist = files.find((f) => f.filename.endsWith(".tar.gz"));
+        const file = sdist ?? files[0]!;
+        const publishedAt = file["upload-time"] ? new Date(file["upload-time"]) : null;
+        const integrity = file.hashes?.sha256 ? `sha256-${file.hashes.sha256}` : "";
+        const status = file.yanked !== false && file.yanked !== undefined ? "yanked" : "";
 
-        const sdist = releases.find((r) => r.filename.endsWith(".tar.gz"));
-        const release = sdist ?? releases[0]!;
-        const publishedAt = release.upload_time_iso_8601
-          ? new Date(release.upload_time_iso_8601)
-          : null;
-        const integrity = release.digests?.sha256 ? `sha256-${release.digests.sha256}` : "";
-        const status = release.yanked ? "yanked" : "";
-
-        this.downloadUrls.set(`${normalized}@${versionStr}`, release.url);
+        this.downloadUrls.set(`${normalized}@${versionStr}`, file.url);
 
         versions.push({
           number: versionStr,
@@ -228,6 +255,35 @@ class PyPIRegistry implements Registry {
         return buildPURL({ type: "pypi", name: this.normalizeName(name), version });
       },
     };
+  }
+
+  /** Match a filename to a version from the known versions list. */
+  private matchFileVersion(
+    filename: string,
+    normalizedName: string,
+    versions: string[],
+  ): string | undefined {
+    // Wheel/sdist filenames normalize the name to underscores
+    const prefix = normalizedName.replace(/-/g, "_") + "-";
+    const lower = filename.toLowerCase();
+
+    if (!lower.startsWith(prefix)) return undefined;
+
+    const afterPrefix = filename.slice(prefix.length);
+
+    // Wheel: {name}-{version}-{python}-{abi}-{platform}.whl
+    // Version is before the first dash after the prefix
+    const dashIdx = afterPrefix.indexOf("-");
+    if (dashIdx !== -1) {
+      const candidate = afterPrefix.slice(0, dashIdx);
+      if (versions.includes(candidate)) return candidate;
+    }
+
+    // Sdist: {name}-{version}.tar.gz / .zip / .tar.bz2
+    const stripped = afterPrefix.replace(/\.(tar\.(gz|bz2|xz)|zip)$/i, "");
+    if (versions.includes(stripped)) return stripped;
+
+    return undefined;
   }
 
   /** Normalize package name per PEP 503. */

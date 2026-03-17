@@ -71,13 +71,17 @@ export class Client {
   }
 
   /** Fetch JSON from a URL with retry and rate limiting. */
-  async getJSON<T>(url: string, signal?: AbortSignal): Promise<T> {
+  async getJSON<T>(
+    url: string,
+    signal?: AbortSignal,
+    headers?: Record<string, string>,
+  ): Promise<T> {
     if (this.rateLimiter) {
       await this.rateLimiter.wait(signal);
     }
 
     try {
-      return await this.fetch<T>(url, { signal });
+      return await this.fetch<T>(url, { signal, headers });
     } catch (error) {
       if (error instanceof FetchError) {
         if (error.statusCode === 429) {
