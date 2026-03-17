@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Client } from "../../src/core/client.ts";
 import { NotFoundError, HTTPError } from "../../src/core/errors.ts";
 import { create } from "../../src/core/registry.ts";

@@ -1,7 +1,6 @@
 import { CachedRegistry } from "../../src/cache/cached-registry.ts";
 import { readLockfile, cacheKey, DEFAULT_TTL } from "../../src/cache/lockfile.ts";
 import { createHash } from "node:crypto";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Registry, URLBuilder } from "../../src/core/types.ts";
 import type { Lockfile } from "../../src/cache/lockfile.ts";
 
@@ -365,7 +364,7 @@ describe("CachedRegistry", () => {
       // Simulate JSON round-trip: replace cached Date with its ISO string
       // (this is what the real fs driver does via JSON.stringify/parse)
       const key = cacheKey("npm", "pkg", "versions");
-      const stored = await cached.storage.getItem(key) as Array<Record<string, unknown>>;
+      const stored = (await cached.storage.getItem(key)) as Array<Record<string, unknown>>;
       if (stored) {
         stored[0]["publishedAt"] = "2024-06-15T12:00:00.000Z";
         await cached.storage.setItem(key, stored as unknown as Record<string, unknown>);
