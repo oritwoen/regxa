@@ -131,8 +131,11 @@ export class CachedRegistry implements Registry {
     };
     try {
       await this.storage.setItem(storageKey, value as Record<string, unknown>);
-      setEntry(lockfile, newEntry);
-      await writeLockfile(lockfile, this.lockfileStorage);
+      // Re-read lockfile before writing to avoid overwriting entries
+      // added by concurrent calls for different keys.
+      const freshLockfile = await readLockfile(this.lockfileStorage);
+      setEntry(freshLockfile, newEntry);
+      await writeLockfile(freshLockfile, this.lockfileStorage);
     } catch {
       // Storage I/O failed (disk full, permissions, remote driver timeout, etc.).
       // The data was already fetched successfully — return it anyway.
