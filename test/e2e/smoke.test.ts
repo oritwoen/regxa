@@ -7,6 +7,8 @@
 import { create, ecosystems, has } from "../../src/core/registry.ts";
 import "../../src/registries/index.ts";
 
+const SMOKE_TIMEOUT = 60_000;
+
 describe("registry smoke tests", () => {
   it("all 6 ecosystems are registered", () => {
     const registered = ecosystems();
@@ -25,7 +27,7 @@ describe("registry smoke tests", () => {
     expect(has("unknown")).toBe(false);
   });
 
-  describe("npm — lodash", { timeout: 15_000 }, () => {
+  describe("npm — lodash", { timeout: SMOKE_TIMEOUT }, () => {
     it("fetchPackage", async () => {
       const reg = create("npm");
       const pkg = await reg.fetchPackage("lodash");
@@ -50,7 +52,7 @@ describe("registry smoke tests", () => {
     });
   });
 
-  describe("cargo — serde", { timeout: 15_000 }, () => {
+  describe("cargo — serde", { timeout: SMOKE_TIMEOUT }, () => {
     it("fetchPackage", async () => {
       const reg = create("cargo");
       const pkg = await reg.fetchPackage("serde");
@@ -60,7 +62,7 @@ describe("registry smoke tests", () => {
     });
   });
 
-  describe("pypi — requests", { timeout: 15_000 }, () => {
+  describe("pypi — requests", { timeout: SMOKE_TIMEOUT }, () => {
     it("fetchPackage", async () => {
       const reg = create("pypi");
       const pkg = await reg.fetchPackage("requests");
@@ -70,7 +72,7 @@ describe("registry smoke tests", () => {
     });
   });
 
-  describe("gem — rails", { timeout: 15_000 }, () => {
+  describe("gem — rails", { timeout: SMOKE_TIMEOUT }, () => {
     it("fetchPackage", async () => {
       const reg = create("gem");
       const pkg = await reg.fetchPackage("rails");
@@ -79,7 +81,7 @@ describe("registry smoke tests", () => {
     });
   });
 
-  describe("composer — laravel/framework", { timeout: 15_000 }, () => {
+  describe("composer — laravel/framework", { timeout: SMOKE_TIMEOUT }, () => {
     it("fetchPackage", async () => {
       const reg = create("composer");
       const pkg = await reg.fetchPackage("laravel/framework");
@@ -89,7 +91,7 @@ describe("registry smoke tests", () => {
     });
   });
 
-  describe("alpm — pacman (official)", { timeout: 15_000 }, () => {
+  describe("alpm — pacman (official)", { timeout: SMOKE_TIMEOUT }, () => {
     it("fetchPackage", async () => {
       const reg = create("alpm");
       const pkg = await reg.fetchPackage("arch/pacman");
@@ -100,7 +102,7 @@ describe("registry smoke tests", () => {
     });
   });
 
-  describe("alpm — yay (AUR)", { timeout: 15_000 }, () => {
+  describe("alpm — yay (AUR)", { timeout: SMOKE_TIMEOUT }, () => {
     it("fetchPackage", async () => {
       const reg = create("alpm");
       const pkg = await reg.fetchPackage("aur/yay");
