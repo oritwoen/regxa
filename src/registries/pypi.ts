@@ -83,8 +83,8 @@ class PyPIRegistry implements Registry {
       return {
         name: info.name,
         description: info.summary || info.description || "",
-        homepage: this.findProjectUrl(info.project_urls, ["Homepage"]) || "",
-        documentation: this.findProjectUrl(info.project_urls, ["Documentation"]) || "",
+        homepage: this.findProjectUrl(info.project_urls, ["Homepage"]),
+        documentation: this.findProjectUrl(info.project_urls, ["Documentation"]),
         repository,
         licenses,
         keywords,
