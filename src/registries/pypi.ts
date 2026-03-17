@@ -237,7 +237,7 @@ class PyPIRegistry implements Registry {
       "GitHub",
       "Homepage",
     ]);
-    return url ? normalizeRepositoryURL(url) : "";
+    return normalizeRepositoryURL(url);
   }
 
   /** Find a project URL by key, case-insensitive. */
