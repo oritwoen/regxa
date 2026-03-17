@@ -51,13 +51,18 @@ export class CachedRegistry implements Registry {
       "package",
       undefined,
       () => this.inner.fetchPackage(name, signal),
+      signal,
       (value) => ({ latestVersion: value.latestVersion }),
     );
   }
 
   async fetchVersions(name: string, signal?: AbortSignal): Promise<Version[]> {
-    const versions = await this.cached<Version[]>(name, "versions", undefined, () =>
-      this.inner.fetchVersions(name, signal),
+    const versions = await this.cached<Version[]>(
+      name,
+      "versions",
+      undefined,
+      () => this.inner.fetchVersions(name, signal),
+      signal,
     );
     // JSON round-trip through storage turns Date objects into ISO strings.
     // Revive them so consumers can safely call .getTime() / .toISOString().
@@ -72,14 +77,22 @@ export class CachedRegistry implements Registry {
     version: string,
     signal?: AbortSignal,
   ): Promise<Dependency[]> {
-    return this.cached<Dependency[]>(name, "dependencies", version, () =>
-      this.inner.fetchDependencies(name, version, signal),
+    return this.cached<Dependency[]>(
+      name,
+      "dependencies",
+      version,
+      () => this.inner.fetchDependencies(name, version, signal),
+      signal,
     );
   }
 
   async fetchMaintainers(name: string, signal?: AbortSignal): Promise<Maintainer[]> {
-    return this.cached<Maintainer[]>(name, "maintainers", undefined, () =>
-      this.inner.fetchMaintainers(name, signal),
+    return this.cached<Maintainer[]>(
+      name,
+      "maintainers",
+      undefined,
+      () => this.inner.fetchMaintainers(name, signal),
+      signal,
     );
   }
 
@@ -94,6 +107,7 @@ export class CachedRegistry implements Registry {
     type: EntryType,
     version: string | undefined,
     fetcher: () => Promise<T>,
+    signal: AbortSignal | undefined,
     extraMeta?: (value: T) => Record<string, unknown>,
   ): Promise<T> {
     const eco = this.inner.ecosystem();
@@ -113,14 +127,18 @@ export class CachedRegistry implements Registry {
         if (currentHash === entry.integrity) {
           return cached;
         }
-        // Integrity mismatch — refetch
+        // Integrity mismatch - refetch
       }
     }
 
-    // 3. Coalesce concurrent fetches for the same key (single-flight)
-    const pending = this.inflight.get(key);
-    if (pending) {
-      return pending as Promise<T>;
+    // 3. Coalesce concurrent fetches for the same key (single-flight).
+    // Skip dedup when caller provides an AbortSignal to avoid sharing
+    // cancellation context across unrelated callers.
+    if (!signal) {
+      const pending = this.inflight.get(key);
+      if (pending) {
+        return pending as Promise<T>;
+      }
     }
 
     const flight = (async () => {
@@ -151,7 +169,9 @@ export class CachedRegistry implements Registry {
       return value;
     })();
 
-    this.inflight.set(key, flight);
+    if (!signal) {
+      this.inflight.set(key, flight);
+    }
     try {
       return await flight;
     } finally {
