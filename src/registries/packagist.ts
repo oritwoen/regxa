@@ -270,7 +270,7 @@ class PackagistRegistry implements Registry {
   /** Find the highest non-dev version. */
   private findLatestVersion(versions: string[]): string {
     // Filter out dev versions
-    const stable = versions.filter((v) => !v.startsWith("dev-"));
+    const stable = versions.filter((v) => !v.startsWith("dev-") && !v.endsWith("-dev"));
     if (stable.length === 0) {
       return versions[0] || "";
     }
