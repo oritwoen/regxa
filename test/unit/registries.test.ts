@@ -119,6 +119,51 @@ describe("Registry Modules", () => {
       expect(versions[1].status).toBe("");
     });
 
+    it("should use top-level maintainers instead of scanning all versions", async () => {
+      const client = new Client();
+      const mockResponse = {
+        name: "lodash",
+        "dist-tags": { latest: "4.17.21" },
+        maintainers: [
+          { name: "jdalton", email: "john@davidclarkson.com" },
+          { name: "mathias", email: "mathias@example.com" },
+        ],
+        versions: {
+          "4.17.20": {
+            name: "lodash",
+            version: "4.17.20",
+            author: { name: "Old Author", email: "old@example.com" },
+            maintainers: [{ name: "jdalton", email: "john@davidclarkson.com" }],
+          },
+          "4.17.21": {
+            name: "lodash",
+            version: "4.17.21",
+            author: { name: "jdalton", email: "john@davidclarkson.com" },
+            contributors: [{ name: "Blaine Bublitz", email: "blaine@example.com" }],
+            maintainers: [
+              { name: "jdalton", email: "john@davidclarkson.com" },
+              { name: "mathias", email: "mathias@example.com" },
+            ],
+          },
+        },
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("npm", undefined, client);
+      const maintainers = await registry.fetchMaintainers("lodash");
+
+      // Top-level maintainers (jdalton, mathias) + contributor from latest (Blaine)
+      // Author "jdalton" is deduplicated against top-level maintainer
+      // Old versions' author ("Old Author") is NOT included - only latest version
+      expect(maintainers).toHaveLength(3);
+      expect(maintainers[0].name).toBe("jdalton");
+      expect(maintainers[0].role).toBe("");
+      expect(maintainers[1].name).toBe("mathias");
+      expect(maintainers[2].name).toBe("Blaine Bublitz");
+      expect(maintainers[2].role).toBe("contributor");
+    });
+
     it("should produce valid PURL for scoped packages", () => {
       const registry = create("npm");
       const urls = registry.urls();
