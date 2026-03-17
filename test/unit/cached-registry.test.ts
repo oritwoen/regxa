@@ -338,6 +338,45 @@ describe("CachedRegistry", () => {
       await cached.fetchVersions("pkg");
       expect(fetchCount).toBe(2);
     });
+
+    it("revives publishedAt strings back to Date after cache round-trip", async () => {
+      let fetchCount = 0;
+      const inner = createMockRegistry("npm", {
+        fetchVersions: async () => {
+          fetchCount++;
+          return [
+            {
+              number: "1.0.0",
+              publishedAt: new Date("2024-06-15T12:00:00Z"),
+              licenses: "MIT",
+              integrity: "sha256-v1",
+              status: "",
+              metadata: {},
+            },
+          ];
+        },
+      });
+      const cached = new CachedRegistry(inner);
+
+      // First fetch populates cache
+      await cached.fetchVersions("pkg");
+      expect(fetchCount).toBe(1);
+
+      // Simulate JSON round-trip: replace cached Date with its ISO string
+      // (this is what the real fs driver does via JSON.stringify/parse)
+      const key = cacheKey("npm", "pkg", "versions");
+      const stored = await cached.storage.getItem(key) as Array<Record<string, unknown>>;
+      if (stored) {
+        stored[0]["publishedAt"] = "2024-06-15T12:00:00.000Z";
+        await cached.storage.setItem(key, stored as unknown as Record<string, unknown>);
+      }
+
+      // Second fetch reads from cache with string date
+      const versions = await cached.fetchVersions("pkg");
+      expect(fetchCount).toBe(1); // Still from cache
+      expect(versions[0].publishedAt).toBeInstanceOf(Date);
+      expect(versions[0].publishedAt!.toISOString()).toBe("2024-06-15T12:00:00.000Z");
+    });
   });
 
   describe("fetchDependencies", () => {
