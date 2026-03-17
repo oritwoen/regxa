@@ -205,7 +205,7 @@ class PyPIRegistry implements Registry {
       },
       download: (name: string, version: string) => {
         const normalized = this.normalizeName(name);
-        return `https://pypi.org/project/${normalized}/${version}/`;
+        return `https://pypi.org/project/${normalized}/${version}/#${normalized}-${version}.tar.gz`;
       },
       documentation: (name: string, _version?: string) => {
         const normalized = this.normalizeName(name);
