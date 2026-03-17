@@ -596,6 +596,34 @@ describe("CachedRegistry", () => {
       expect(entry?.integrity).toMatch(/^sha256-[a-f0-9]{64}$/);
     });
 
+    it("should not lose lockfile entries when concurrent fetches write different keys", async () => {
+      const inner = createMockRegistry("npm", {
+        fetchPackage: async (name) => {
+          await new Promise((r) => setTimeout(r, 50));
+          return {
+            name,
+            description: "",
+            homepage: "",
+            repository: "",
+            licenses: "MIT",
+            keywords: [],
+            namespace: "",
+            latestVersion: "1.0.0",
+            metadata: {},
+          };
+        },
+      });
+      const cached = new CachedRegistry(inner);
+
+      // Concurrent fetches for different packages
+      await Promise.all([cached.fetchPackage("alpha"), cached.fetchPackage("beta")]);
+
+      const alphaKey = cacheKey("npm", "alpha", "package");
+      const betaKey = cacheKey("npm", "beta", "package");
+      expect(mockLockfile.entries[alphaKey]).toBeDefined();
+      expect(mockLockfile.entries[betaKey]).toBeDefined();
+    });
+
     it("uses correct TTL for each entry type", async () => {
       const inner = createMockRegistry("npm");
       const cached = new CachedRegistry(inner);
