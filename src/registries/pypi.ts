@@ -83,8 +83,8 @@ class PyPIRegistry implements Registry {
       return {
         name: info.name,
         description: info.summary || info.description || "",
-        homepage: info.project_urls?.["Homepage"] || "",
-        documentation: info.project_urls?.["Documentation"] || "",
+        homepage: this.findProjectUrl(info.project_urls, ["Homepage"]),
+        documentation: this.findProjectUrl(info.project_urls, ["Documentation"]),
         repository,
         licenses,
         keywords,
@@ -230,14 +230,31 @@ class PyPIRegistry implements Registry {
 
   /** Extract repository URL from project_urls. */
   private extractRepository(projectUrls: Record<string, string> | undefined): string {
+    const url = this.findProjectUrl(projectUrls, [
+      "Repository",
+      "Source",
+      "Source Code",
+      "GitHub",
+      "Homepage",
+    ]);
+    return normalizeRepositoryURL(url);
+  }
+
+  /** Find a project URL by key, case-insensitive. */
+  private findProjectUrl(
+    projectUrls: Record<string, string> | undefined,
+    keys: string[],
+  ): string {
     if (!projectUrls) return "";
 
-    const keys = ["Repository", "Source", "Source Code", "GitHub", "Homepage"];
+    const lowered = new Map<string, string>();
+    for (const [k, v] of Object.entries(projectUrls)) {
+      lowered.set(k.toLowerCase(), v);
+    }
+
     for (const key of keys) {
-      const url = projectUrls[key];
-      if (url) {
-        return normalizeRepositoryURL(url);
-      }
+      const value = lowered.get(key.toLowerCase());
+      if (value) return value;
     }
 
     return "";

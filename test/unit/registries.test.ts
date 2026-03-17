@@ -497,6 +497,39 @@ describe("Registry Modules", () => {
       await expect(registry.fetchPackage("nonexistent-package-xyz")).rejects.toThrow(NotFoundError);
     });
 
+    it("should match project_urls keys case-insensitively", async () => {
+      const client = new Client();
+      const mockResponse = {
+        info: {
+          name: "some-pkg",
+          version: "1.0.0",
+          summary: "A package",
+          description: "",
+          license: "MIT",
+          keywords: "",
+          author: "",
+          author_email: "",
+          project_urls: {
+            homepage: "https://example.com",
+            "source code": "https://github.com/foo/bar",
+            documentation: "https://docs.example.com",
+          },
+          requires_dist: null,
+        },
+        releases: {},
+        urls: [],
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("pypi", undefined, client);
+      const pkg = await registry.fetchPackage("some-pkg");
+
+      expect(pkg.homepage).toBe("https://example.com");
+      expect(pkg.repository).toContain("github.com/foo/bar");
+      expect(pkg.documentation).toBe("https://docs.example.com");
+    });
+
     it("should parse PEP 508 dependencies with version specs", async () => {
       const client = new Client();
       const mockResponse = {
