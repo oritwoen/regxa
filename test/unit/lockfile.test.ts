@@ -1,6 +1,5 @@
 import { createStorage } from "unstorage";
 import memoryDriver from "unstorage/drivers/memory";
-import { describe, expect, it } from "vitest";
 import {
   DEFAULT_TTL,
   cacheKey,
