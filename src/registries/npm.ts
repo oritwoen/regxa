@@ -254,7 +254,8 @@ class NpmRegistry implements Registry {
       // Use top-level maintainers (people with publish access)
       if (data.maintainers) {
         for (const maintainer of data.maintainers) {
-          const key = `${maintainer.name}:${maintainer.email}`;
+          const key = this.maintainerKey(maintainer.name, maintainer.email);
+          if (!key || seen.has(key)) continue;
           seen.add(key);
           maintainers.push({
             uuid: "",
@@ -272,8 +273,8 @@ class NpmRegistry implements Registry {
       const latestVersion = data.versions[latestTag];
 
       if (latestVersion?.author) {
-        const key = `${latestVersion.author.name}:${latestVersion.author.email}`;
-        if (!seen.has(key)) {
+        const key = this.maintainerKey(latestVersion.author.name, latestVersion.author.email);
+        if (key && !seen.has(key)) {
           seen.add(key);
           maintainers.push({
             uuid: "",
@@ -288,8 +289,8 @@ class NpmRegistry implements Registry {
 
       if (latestVersion?.contributors) {
         for (const contributor of latestVersion.contributors) {
-          const key = `${contributor.name}:${contributor.email}`;
-          if (!seen.has(key)) {
+          const key = this.maintainerKey(contributor.name, contributor.email);
+          if (key && !seen.has(key)) {
             seen.add(key);
             maintainers.push({
               uuid: "",
@@ -336,6 +337,14 @@ class NpmRegistry implements Registry {
         return buildPURL({ type: "npm", namespace, name: bareName, version });
       },
     };
+  }
+
+  /** Build a stable dedup key from name+email. Returns empty string when both are missing. */
+  private maintainerKey(name: string | undefined, email: string | undefined): string {
+    const n = name || "";
+    const e = email || "";
+    if (!n && !e) return "";
+    return `${n}:${e}`;
   }
 
   /** Encode package name for URL (handle scoped packages). */
