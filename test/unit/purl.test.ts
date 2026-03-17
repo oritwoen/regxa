@@ -27,6 +27,30 @@ describe("purl", () => {
       });
     });
 
+    it("parses scoped package with literal @ in path", () => {
+      const result = parsePURL("pkg:npm/@vue/core");
+      expect(result).toEqual({
+        type: "npm",
+        namespace: "@vue",
+        name: "core",
+        version: "",
+        qualifiers: {},
+        subpath: "",
+      });
+    });
+
+    it("parses scoped package with literal @ and version", () => {
+      const result = parsePURL("pkg:npm/@vue/core@3.4.0");
+      expect(result).toEqual({
+        type: "npm",
+        namespace: "@vue",
+        name: "core",
+        version: "3.4.0",
+        qualifiers: {},
+        subpath: "",
+      });
+    });
+
     it("parses PURL with version", () => {
       const result = parsePURL("pkg:cargo/serde@1.0.0");
       expect(result).toEqual({

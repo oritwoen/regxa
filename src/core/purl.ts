@@ -55,12 +55,15 @@ export function parsePURL(purlStr: string): ParsedPURL {
     }
   }
 
-  // Extract version
+  // Extract version — the version separator is the last '@' that appears
+  // after the last '/', so scoped names like 'npm/@vue/core' are not mistaken
+  // for having a version.
   let version = "";
-  const atIdx = remainder.indexOf("@");
-  if (atIdx !== -1) {
-    version = decodePURLComponent(purlStr, remainder.slice(atIdx + 1));
-    remainder = remainder.slice(0, atIdx);
+  const lastSlashBeforeVersion = remainder.lastIndexOf("/");
+  const lastAtIdx = remainder.lastIndexOf("@");
+  if (lastAtIdx !== -1 && lastAtIdx > lastSlashBeforeVersion) {
+    version = decodePURLComponent(purlStr, remainder.slice(lastAtIdx + 1));
+    remainder = remainder.slice(0, lastAtIdx);
   }
 
   // Extract type
