@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.1.7
+
+[compare changes](https://github.com/oritwoen/regxa/compare/v0.1.6...v0.1.7)
+
+### 🔥 Performance
+
+- **npm:** Fetch dependencies from per-version endpoint ([#47](https://github.com/oritwoen/regxa/pull/47))
+
+### 🩹 Fixes
+
+- **cache:** Revive Date objects after JSON round-trip in fetchVersions ([#45](https://github.com/oritwoen/regxa/pull/45))
+- **npm:** Use top-level maintainers instead of scanning all versions ([#42](https://github.com/oritwoen/regxa/pull/42))
+- **license:** Use OR instead of AND when combining multiple licenses ([#43](https://github.com/oritwoen/regxa/pull/43))
+- **pypi:** Match project_urls keys case-insensitively ([#44](https://github.com/oritwoen/regxa/pull/44))
+- **packagist:** Filter dev-suffixed versions from latest resolution ([#48](https://github.com/oritwoen/regxa/pull/48))
+- **cli:** Handle HTTPError and RateLimitError in CLI error handler ([#46](https://github.com/oritwoen/regxa/pull/46))
+- **purl:** Handle literal @ in scoped package shorthand ([#50](https://github.com/oritwoen/regxa/pull/50))
+- **test:** Align smoke test timeouts with client defaults ([#51](https://github.com/oritwoen/regxa/pull/51))
+- **pypi:** Point download URL to version files page ([#54](https://github.com/oritwoen/regxa/pull/54))
+- **cache:** Re-read lockfile before writing to prevent lost entries ([#55](https://github.com/oritwoen/regxa/pull/55))
+- **cache:** Coalesce concurrent fetches with single-flight deduplication ([#52](https://github.com/oritwoen/regxa/pull/52))
+
+### 💅 Refactors
+
+- **pypi:** Migrate fetchVersions to Simple API (PEP 691) ([#56](https://github.com/oritwoen/regxa/pull/56))
+
+### 🏡 Chore
+
+- **test:** Remove redundant vitest imports ([#49](https://github.com/oritwoen/regxa/pull/49))
+
+### ❤️ Contributors
+
+- Ori
+
 ## v0.1.6
 
 [compare changes](https://github.com/oritwoen/regxa/compare/v0.1.5...v0.1.6)
