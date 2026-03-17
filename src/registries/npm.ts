@@ -35,6 +35,11 @@ interface NpmPackageResponse {
     latest: string;
   };
   versions: Record<string, NpmVersion>;
+  maintainers?: Array<{
+    name?: string;
+    email?: string;
+    url?: string;
+  }>;
   time?: Record<string, string>;
 }
 
@@ -246,58 +251,55 @@ class NpmRegistry implements Registry {
       const maintainers: Maintainer[] = [];
       const seen = new Set<string>();
 
-      // Collect from maintainers field
-      if (data.versions) {
-        for (const versionData of Object.values(data.versions)) {
-          if (versionData.maintainers) {
-            for (const maintainer of versionData.maintainers) {
-              const key = `${maintainer.name}:${maintainer.email}`;
-              if (!seen.has(key)) {
-                seen.add(key);
-                maintainers.push({
-                  uuid: "",
-                  login: maintainer.email ? maintainer.email.split("@")[0] : "",
-                  name: maintainer.name || "",
-                  email: maintainer.email || "",
-                  url: maintainer.url || "",
-                  role: "",
-                });
-              }
-            }
-          }
+      // Use top-level maintainers (people with publish access)
+      if (data.maintainers) {
+        for (const maintainer of data.maintainers) {
+          const key = this.maintainerKey(maintainer.name, maintainer.email);
+          if (!key || seen.has(key)) continue;
+          seen.add(key);
+          maintainers.push({
+            uuid: "",
+            login: maintainer.email ? maintainer.email.split("@")[0] : "",
+            name: maintainer.name || "",
+            email: maintainer.email || "",
+            url: maintainer.url || "",
+            role: "",
+          });
+        }
+      }
 
-          // Collect from author field
-          if (versionData.author) {
-            const key = `${versionData.author.name}:${versionData.author.email}`;
-            if (!seen.has(key)) {
-              seen.add(key);
-              maintainers.push({
-                uuid: "",
-                login: versionData.author.email ? versionData.author.email.split("@")[0] : "",
-                name: versionData.author.name || "",
-                email: versionData.author.email || "",
-                url: versionData.author.url || "",
-                role: "author",
-              });
-            }
-          }
+      // Supplement with author and contributors from the latest version only
+      const latestTag = data["dist-tags"].latest;
+      const latestVersion = data.versions[latestTag];
 
-          // Collect from contributors field
-          if (versionData.contributors) {
-            for (const contributor of versionData.contributors) {
-              const key = `${contributor.name}:${contributor.email}`;
-              if (!seen.has(key)) {
-                seen.add(key);
-                maintainers.push({
-                  uuid: "",
-                  login: contributor.email ? contributor.email.split("@")[0] : "",
-                  name: contributor.name || "",
-                  email: contributor.email || "",
-                  url: contributor.url || "",
-                  role: "contributor",
-                });
-              }
-            }
+      if (latestVersion?.author) {
+        const key = this.maintainerKey(latestVersion.author.name, latestVersion.author.email);
+        if (key && !seen.has(key)) {
+          seen.add(key);
+          maintainers.push({
+            uuid: "",
+            login: latestVersion.author.email ? latestVersion.author.email.split("@")[0] : "",
+            name: latestVersion.author.name || "",
+            email: latestVersion.author.email || "",
+            url: latestVersion.author.url || "",
+            role: "author",
+          });
+        }
+      }
+
+      if (latestVersion?.contributors) {
+        for (const contributor of latestVersion.contributors) {
+          const key = this.maintainerKey(contributor.name, contributor.email);
+          if (key && !seen.has(key)) {
+            seen.add(key);
+            maintainers.push({
+              uuid: "",
+              login: contributor.email ? contributor.email.split("@")[0] : "",
+              name: contributor.name || "",
+              email: contributor.email || "",
+              url: contributor.url || "",
+              role: "contributor",
+            });
           }
         }
       }
@@ -335,6 +337,13 @@ class NpmRegistry implements Registry {
         return buildPURL({ type: "npm", namespace, name: bareName, version });
       },
     };
+  }
+
+  /** Build a stable dedup key. Prefers email (unique per account), falls back to name. */
+  private maintainerKey(name: string | undefined, email: string | undefined): string {
+    if (email) return email;
+    if (name) return name;
+    return "";
   }
 
   /** Encode package name for URL (handle scoped packages). */
