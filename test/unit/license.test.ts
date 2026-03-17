@@ -144,28 +144,28 @@ describe("license", () => {
       expect(combineLicenses(["MIT License"])).toBe("MIT");
     });
 
-    it("combines two licenses with AND", () => {
-      expect(combineLicenses(["MIT", "Apache-2.0"])).toBe("MIT AND Apache-2.0");
+    it("combines two licenses with OR", () => {
+      expect(combineLicenses(["MIT", "Apache-2.0"])).toBe("MIT OR Apache-2.0");
     });
 
-    it("combines multiple licenses with AND", () => {
-      expect(combineLicenses(["MIT", "Apache-2.0", "ISC"])).toBe("MIT AND Apache-2.0 AND ISC");
+    it("combines multiple licenses with OR", () => {
+      expect(combineLicenses(["MIT", "Apache-2.0", "ISC"])).toBe("MIT OR Apache-2.0 OR ISC");
     });
 
     it("normalizes licenses before combining", () => {
-      expect(combineLicenses(["MIT License", "Apache 2.0"])).toBe("MIT AND Apache-2.0");
+      expect(combineLicenses(["MIT License", "Apache 2.0"])).toBe("MIT OR Apache-2.0");
     });
 
     it("filters out null/undefined values", () => {
-      expect(combineLicenses(["MIT", null, "Apache-2.0", undefined])).toBe("MIT AND Apache-2.0");
+      expect(combineLicenses(["MIT", null, "Apache-2.0", undefined])).toBe("MIT OR Apache-2.0");
     });
 
     it("filters out empty strings", () => {
-      expect(combineLicenses(["MIT", "", "Apache-2.0"])).toBe("MIT AND Apache-2.0");
+      expect(combineLicenses(["MIT", "", "Apache-2.0"])).toBe("MIT OR Apache-2.0");
     });
 
     it("filters out whitespace-only strings", () => {
-      expect(combineLicenses(["MIT", "   ", "Apache-2.0"])).toBe("MIT AND Apache-2.0");
+      expect(combineLicenses(["MIT", "   ", "Apache-2.0"])).toBe("MIT OR Apache-2.0");
     });
 
     it("handles all nulls/undefined/empty", () => {
@@ -174,7 +174,7 @@ describe("license", () => {
 
     it("combines with normalization and filtering", () => {
       expect(combineLicenses(["MIT License", null, "Apache 2.0", undefined, ""])).toBe(
-        "MIT AND Apache-2.0",
+        "MIT OR Apache-2.0",
       );
     });
   });

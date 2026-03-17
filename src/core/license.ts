@@ -63,5 +63,5 @@ export function combineLicenses(licenses: (string | null | undefined)[]): string
 
   if (normalized.length === 0) return "";
   if (normalized.length === 1) return normalized[0]!;
-  return normalized.join(" AND ");
+  return normalized.join(" OR ");
 }
