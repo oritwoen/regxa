@@ -57,11 +57,17 @@ const LICENSE_MAP = new Map<string, string>([
 
 /**
  * Combine multiple license strings into a single SPDX expression.
+ *
+ * Default operator is OR (disjunctive, user picks one).
+ * Pass "AND" for ecosystems where multiple licenses mean all apply (e.g. Arch Linux).
  */
-export function combineLicenses(licenses: (string | null | undefined)[]): string {
+export function combineLicenses(
+  licenses: (string | null | undefined)[],
+  operator: "OR" | "AND" = "OR",
+): string {
   const normalized = licenses.map((l) => normalizeLicense(l)).filter(Boolean);
 
   if (normalized.length === 0) return "";
   if (normalized.length === 1) return normalized[0]!;
-  return normalized.join(" AND ");
+  return normalized.join(` ${operator} `);
 }
