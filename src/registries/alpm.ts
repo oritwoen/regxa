@@ -189,7 +189,7 @@ class AlpmRegistry implements Registry {
       homepage: result.url || "",
       documentation: "",
       repository: "",
-      licenses: combineLicenses(result.licenses, "AND"),
+      licenses: combineLicenses(result.licenses),
       keywords: result.groups,
       namespace: "arch",
       latestVersion: this.formatVersion(result),
@@ -217,7 +217,7 @@ class AlpmRegistry implements Registry {
       {
         number: this.formatVersion(result),
         publishedAt: result.last_update ? new Date(result.last_update) : null,
-        licenses: combineLicenses(result.licenses, "AND"),
+        licenses: combineLicenses(result.licenses),
         integrity: "",
         status: result.flag_date ? "deprecated" : "",
         metadata: {
@@ -294,7 +294,7 @@ class AlpmRegistry implements Registry {
       homepage: result.URL || "",
       documentation: "",
       repository: "",
-      licenses: combineLicenses(result.License || [], "AND"),
+      licenses: combineLicenses(result.License || []),
       keywords: result.Keywords || [],
       namespace: "aur",
       latestVersion: result.Version,
@@ -316,7 +316,7 @@ class AlpmRegistry implements Registry {
       {
         number: result.Version,
         publishedAt: result.LastModified ? new Date(result.LastModified * 1000) : null,
-        licenses: combineLicenses(result.License || [], "AND"),
+        licenses: combineLicenses(result.License || []),
         integrity: "",
         status: result.OutOfDate ? "deprecated" : "",
         metadata: {
