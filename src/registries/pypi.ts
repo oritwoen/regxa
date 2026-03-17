@@ -63,6 +63,7 @@ class PyPIRegistry implements Registry {
 
   readonly baseURL: string;
   readonly client: Client;
+  private readonly downloadUrls = new Map<string, string>();
 
   ecosystem(): string {
     return "pypi";
@@ -112,12 +113,15 @@ class PyPIRegistry implements Registry {
       for (const [versionStr, releases] of Object.entries(releaseMap)) {
         if (releases.length === 0) continue;
 
-        const release = releases[0]!;
+        const sdist = releases.find((r) => r.filename.endsWith(".tar.gz"));
+        const release = sdist ?? releases[0]!;
         const publishedAt = release.upload_time_iso_8601
           ? new Date(release.upload_time_iso_8601)
           : null;
         const integrity = release.digests?.sha256 ? `sha256-${release.digests.sha256}` : "";
         const status = release.yanked ? "yanked" : "";
+
+        this.downloadUrls.set(`${normalized}@${versionStr}`, release.url);
 
         versions.push({
           number: versionStr,
@@ -205,7 +209,10 @@ class PyPIRegistry implements Registry {
       },
       download: (name: string, version: string) => {
         const normalized = this.normalizeName(name);
-        return `https://pypi.org/pypi/${normalized}/${version}`;
+        return (
+          this.downloadUrls.get(`${normalized}@${version}`) ??
+          `https://pypi.org/project/${normalized}/${version}/`
+        );
       },
       documentation: (name: string, _version?: string) => {
         const normalized = this.normalizeName(name);
@@ -241,10 +248,7 @@ class PyPIRegistry implements Registry {
   }
 
   /** Find a project URL by key, case-insensitive. */
-  private findProjectUrl(
-    projectUrls: Record<string, string> | undefined,
-    keys: string[],
-  ): string {
+  private findProjectUrl(projectUrls: Record<string, string> | undefined, keys: string[]): string {
     if (!projectUrls) return "";
 
     const lowered = new Map<string, string>();
