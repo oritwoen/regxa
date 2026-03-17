@@ -1090,6 +1090,93 @@ describe("Registry Modules", () => {
       expect(pkg.latestVersion).toBe("10.1.0");
     });
 
+    it("should skip dev-suffixed versions when resolving latest", async () => {
+      const client = new Client();
+      const mockResponse = {
+        package: {
+          name: "laravel/framework",
+          description: "The Laravel Framework.",
+          repository: "https://github.com/laravel/framework",
+          keywords: [],
+          versions: {
+            "v12.x-dev": {
+              name: "laravel/framework",
+              version: "v12.x-dev",
+              license: ["MIT"],
+              authors: [],
+              require: {},
+              "require-dev": {},
+              time: "2025-01-01T00:00:00Z",
+            },
+            "dev-master": {
+              name: "laravel/framework",
+              version: "dev-master",
+              license: ["MIT"],
+              authors: [],
+              require: {},
+              "require-dev": {},
+              time: "2025-01-01T00:00:00Z",
+            },
+            "11.5.1": {
+              name: "laravel/framework",
+              version: "11.5.1",
+              license: ["MIT"],
+              authors: [],
+              require: {},
+              "require-dev": {},
+              time: "2025-01-01T00:00:00Z",
+            },
+          },
+        },
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("composer", undefined, client);
+      const pkg = await registry.fetchPackage("laravel/framework");
+
+      expect(pkg.latestVersion).toBe("11.5.1");
+    });
+
+    it("should fall back to first version when all versions are dev", async () => {
+      const client = new Client();
+      const mockResponse = {
+        package: {
+          name: "example/dev-only",
+          description: "A dev-only package",
+          repository: "",
+          keywords: [],
+          versions: {
+            "dev-master": {
+              name: "example/dev-only",
+              version: "dev-master",
+              license: ["MIT"],
+              authors: [],
+              require: {},
+              "require-dev": {},
+              time: "2025-01-01T00:00:00Z",
+            },
+            "1.x-dev": {
+              name: "example/dev-only",
+              version: "1.x-dev",
+              license: ["MIT"],
+              authors: [],
+              require: {},
+              "require-dev": {},
+              time: "2025-01-02T00:00:00Z",
+            },
+          },
+        },
+      };
+
+      vi.spyOn(client, "getJSON").mockResolvedValueOnce(mockResponse);
+
+      const registry = create("composer", undefined, client);
+      const pkg = await registry.fetchPackage("example/dev-only");
+
+      expect(["dev-master", "1.x-dev"]).toContain(pkg.latestVersion);
+    });
+
     it("should throw NotFoundError for missing packagist package", async () => {
       const client = new Client();
 
