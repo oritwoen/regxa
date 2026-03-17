@@ -2,7 +2,13 @@ import consola from "consola";
 import type { Registry } from "../core/types.ts";
 import { createFromPURL, parsePURL, fullName } from "../core/purl.ts";
 import { create, ecosystems } from "../core/registry.ts";
-import { NotFoundError, UnknownEcosystemError, InvalidPURLError } from "../core/errors.ts";
+import {
+  HTTPError,
+  NotFoundError,
+  RateLimitError,
+  UnknownEcosystemError,
+  InvalidPURLError,
+} from "../core/errors.ts";
 import { CachedRegistry } from "../cache/cached-registry.ts";
 import "../registries/index.ts";
 
@@ -49,17 +55,28 @@ export async function withErrorHandling(fn: () => Promise<void>): Promise<void> 
       consola.error(
         `Package not found: ${error.ecosystem}/${error.packageName}${error.version ? `@${error.version}` : ""}`,
       );
-      process.exit(1);
+      return process.exit(1);
     }
     if (error instanceof UnknownEcosystemError) {
       consola.error(`Unknown ecosystem: ${error.ecosystem}`);
       consola.info(`Supported: ${ecosystems().join(", ")}`);
-      process.exit(1);
+      return process.exit(1);
     }
     if (error instanceof InvalidPURLError) {
       consola.error(`Invalid PURL: ${error.purl}`);
       consola.info("Examples: pkg:npm/lodash, npm/lodash@4.17.21, pkg:cargo/serde");
-      process.exit(1);
+      return process.exit(1);
+    }
+    if (error instanceof RateLimitError) {
+      consola.error(`Rate limited by registry. Retry after ${error.retryAfter}s`);
+      return process.exit(1);
+    }
+    if (error instanceof HTTPError) {
+      consola.error(`Registry request failed: HTTP ${error.statusCode} (${error.url})`);
+      if (error.isServerError()) {
+        consola.info("The registry may be temporarily unavailable. Try again later.");
+      }
+      return process.exit(1);
     }
     throw error;
   }
